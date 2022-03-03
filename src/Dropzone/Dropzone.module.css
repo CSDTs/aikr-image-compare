@@ -1,0 +1,33 @@
+.container {
+  text-align: center;
+  color: rgba(0, 0, 0, 0.4);
+  border-radius: 5px;
+  height: 100%;
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background: rgba(0, 0, 0, 0);
+  border: 2px dashed rgba(0, 0, 0, 0.2);
+  -webkit-transition-duration: 0.2s;
+          transition-duration: 0.2s;
+}
+
+.container.over {
+  background: rgba(155, 77, 202, 0.2);
+  border: 2px dashed #9b4dca;
+  -webkit-transition-duration: 0.1s;
+          transition-duration: 0.1s;
+}
+
+.input {
+  display: none;
+}
+/*# sourceMappingURL=Dropzone.module.css.map */

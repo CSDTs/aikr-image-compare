@@ -1,0 +1,59 @@
+.app {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  width: 300px;
+  display: flex;
+  margin-right: 20px;
+}
+
+.app.centeredApp {
+  margin-right: 0;
+}
+
+.classifierContainer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+
+.classifierContainer .imgContainer {
+  max-height: 400px;
+  border-radius: 5px;
+  overflow: hidden;
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.classifierContainer img {
+  height: 100%;
+  max-height: 600px;
+}
+
+.classifierContainer.center {
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.info {
+  margin: 0 20px 0 0;
+}
+
+.info h2 {
+  margin-top: 0;
+}
+
+.info a {
+  color: #100382bd;
+  text-decoration: underline;
+}
+/*# sourceMappingURL=App.module.css.map */
