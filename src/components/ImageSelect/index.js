@@ -111,7 +111,12 @@ class ImageSelect extends React.Component {
         </p>
       );
     } else {
-      content = <Select imageList={this.state.currentGroup} />;
+      content = (
+        <Select
+          imageList={this.state.currentGroup}
+          label={this.props.currentGroup}
+        />
+      );
     }
 
     return (

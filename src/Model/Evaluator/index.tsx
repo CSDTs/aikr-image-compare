@@ -1,13 +1,8 @@
-import * as React from 'react';
-import Dropzone from '../../Dropzone';
-import {
-  IFileData,
-  getFilesAsImageArray,
-} from '../../utils/getFilesAsImages';
-import Predictions from './Predictions';
-import {
-  IPrediction,
-} from './Predictions/Prediction';
+import * as React from "react";
+import Dropzone from "../../Dropzone";
+import { IFileData, getFilesAsImageArray } from "../../utils/getFilesAsImages";
+import Predictions from "./Predictions";
+import { IPrediction } from "./Predictions/Prediction";
 
 interface IProps {
   predict: Function;
@@ -32,20 +27,31 @@ class Evaluator extends React.Component<IProps, IState> {
   private onParseFiles = async (files: FileList) => {
     const imageFiles: IFileData[] = await getFilesAsImageArray(files);
     this.props.predict(imageFiles);
-  }
+  };
+
+  private onParseObject = async (files: any) => {
+    // const imageFiles: IFileData[] = await getFilesAsImageArray(files);
+    this.props.predict(files);
+  };
 
   render() {
     return (
       <React.Fragment>
         <Dropzone
           onParseFiles={this.onParseFiles}
-          style={{ borderRadius: '0 0 5px 5px', marginTop: '-2px', height: '300px' }}
+          onParseObject={this.onParseObject}
+          style={{
+            borderRadius: "0 0 5px 5px",
+            marginTop: "-2px",
+            height: "300px",
+          }}
         >
-          Drop Images to test</Dropzone>
+          Drop Images to test
+        </Dropzone>
         <Predictions predictions={this.props.predictions} />
       </React.Fragment>
     );
   }
-};
+}
 
 export default Evaluator;

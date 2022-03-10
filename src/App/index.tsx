@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import styles from "./App.module.scss";
 import MLClassifierUI from "../MLClassifierUI";
 import Search, { IImage } from "../Search";
@@ -7,6 +8,7 @@ import Modal from "../components/Modal";
 import Navigation from "../components/Navigation";
 import ImageSelect from "../components/ImageSelect";
 import "bootstrap/dist/css/bootstrap.min.css";
+
 const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
 
 const qs: {
@@ -105,6 +107,7 @@ class App extends React.Component {
   };
 
   public render() {
+    const processedImages = "My Context Value";
     const currentUserValue = localStorage.getItem("currentUser");
     if (typeof currentUserValue === "string") {
       // const parse = JSON.parse(value); // ok
@@ -114,13 +117,15 @@ class App extends React.Component {
       <>
         <Navigation user={currentUserValue}></Navigation>
 
-        <div className={styles.classifierContainer}>
-          <div className={`row ${SHOW_HELP ? null : styles.center}`}>
-            <div
-              className={`${styles.app} ${
-                SHOW_HELP ? null : styles.centeredApp
-              }`}
-            >
+        <div className="container">
+          <h2>AI App 1: Joe's Lunch</h2>
+          <div className="row">
+            <div className="col-md-4">
+              <ImageSelect label="A" currentGroup="good"></ImageSelect>
+              <ImageSelect label="B" currentGroup="bad"></ImageSelect>
+            </div>
+
+            <div className="col-md-4">
               <MLClassifierUI
                 getMLClassifier={this.getMLClassifier}
                 onAddDataStart={this.onBeginTraining}
@@ -128,14 +133,33 @@ class App extends React.Component {
                 showDownload={!SHOW_DOWNLOAD}
               />
             </div>
+
+            <div className="col-md-4">
+              <p>
+                Drag and drop some labeled images below to begin training your
+                classifier.{" "}
+              </p>
+              <p>
+                <em>
+                  Organize your images into folders, where the folders' names
+                  are the desired labels.
+                </em>
+              </p>
+            </div>
+
+            <Modal />
+          </div>
+        </div>
+
+        <div className={styles.classifierContainer}>
+          <div className={`row ${SHOW_HELP ? null : styles.center}`}>
+            <div
+              className={`${styles.app} ${
+                SHOW_HELP ? null : styles.centeredApp
+              }`}
+            ></div>
             {SHOW_HELP && this.state.training === false && (
               <div className={styles.info}>
-                <h2>Instructions</h2>
-                <Modal />
-                <div className="col-md-4">
-                  <ImageSelect label="A" currentGroup="good"></ImageSelect>
-                  <ImageSelect label="B" currentGroup="bad"></ImageSelect>
-                </div>
                 <p>
                   Drag and drop some labeled images below to begin training your
                   classifier.{" "}

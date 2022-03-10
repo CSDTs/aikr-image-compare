@@ -26,6 +26,14 @@ interface IParams {
   [index: string]: any;
 }
 
+interface ImageList {
+  [index: number]: {
+    file: any;
+    label: string;
+    src: number;
+  };
+}
+
 interface IState {
   status: string;
   images?: string[];
@@ -155,11 +163,65 @@ class MLClassifierUI extends React.Component<IProps, IState> {
   private onParseFiles = async (origFiles: FileList) => {
     const imageFiles: IFileData[] = await getFilesAsImageArray(origFiles);
 
+    console.log(imageFiles);
+    console.log(typeof imageFiles);
     const { images, labels, files } = await splitImagesFromLabels(imageFiles);
 
     this.setState({
       files,
     });
+
+    console.log(images);
+    console.log(labels);
+    console.log(files);
+
+    return this.classifier.addData(images, labels, "train");
+  };
+
+  private onParseObject = (origFiles: Array<any>) => {
+    // const imageFiles: IFileData[] = await getFilesAsImageArray(origFiles);
+    console.log(origFiles);
+    let files = new Array<object>();
+    let labels = new Array<string>();
+    let images = new Array<string>();
+
+    files = origFiles.map((file) => {
+      return {
+        file: file.file,
+        src: file.src,
+        path: file.label,
+      };
+    });
+    images = origFiles.map((file) => {
+      return file.src;
+    });
+    labels = origFiles.map((file) => {
+      return file.label;
+    });
+    console.log(images);
+    console.log(labels);
+    console.log(files);
+
+    // const { images, labels, files } = await splitImagesFromLabels(origFiles);
+
+    // this.setState({
+    //   files,
+    // });
+
+    // let files = [];
+    // let images = [];
+    // let labels = [];
+
+    // for (let file of origFiles) {
+
+    //   files.push(file.file);
+    //   images.push(file.src);
+    //   labels.push(file.label);
+    // }
+
+    // console.log(images);
+    // console.log(labels);
+    // console.log(files);
 
     return this.classifier.addData(images, labels, "train");
   };
@@ -268,7 +330,11 @@ class MLClassifierUI extends React.Component<IProps, IState> {
     return (
       <div className={styles.classifier}>
         {this.state.status === "empty" && (
-          <Dropzone onDrop={this.onDrop} onParseFiles={this.onParseFiles} />
+          <Dropzone
+            onDrop={this.onDrop}
+            onParseFiles={this.onParseFiles}
+            onParseObject={this.onParseObject}
+          />
         )}
         {["training", "uploading", "parsing"].includes(this.state.status) && (
           <Preview images={this.state.images} />
