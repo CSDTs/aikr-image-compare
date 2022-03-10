@@ -3,11 +3,10 @@ import styles from "./App.module.scss";
 import MLClassifierUI from "../MLClassifierUI";
 import Search, { IImage } from "../Search";
 
-import { useReadLocalStorage } from "usehooks-ts";
-
-import NSF from "./nsf.gif";
-import logo from "./logo.svg";
-
+import Modal from "../components/Modal";
+import Navigation from "../components/Navigation";
+import ImageSelect from "../components/ImageSelect";
+import "bootstrap/dist/css/bootstrap.min.css";
 const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
 
 const qs: {
@@ -106,117 +105,54 @@ class App extends React.Component {
   };
 
   public render() {
+    const currentUserValue = localStorage.getItem("currentUser");
+    if (typeof currentUserValue === "string") {
+      // const parse = JSON.parse(value); // ok
+      console.log("currentUser: ", JSON.parse(currentUserValue));
+    }
     return (
-      <React.Fragment>
-        <nav>
-          <div>
-            <div className={styles.brand}>
-              <a href="http://www.nsf.gov">
-                <img src={NSF} width="40" height="40" alt="" />
-              </a>
-              <a href="/">
-                <img src={logo} width="100" height="40" alt="" />
-              </a>
-            </div>
-            <button
-              className={styles.toggler}
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navbarNav"
-              aria-controls="navbarNav"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
+      <>
+        <Navigation user={currentUserValue}></Navigation>
+
+        <div className={styles.classifierContainer}>
+          <div className={`row ${SHOW_HELP ? null : styles.center}`}>
+            <div
+              className={`${styles.app} ${
+                SHOW_HELP ? null : styles.centeredApp
+              }`}
             >
-              <span></span>
-            </button>
-            <div className={styles.nav_collapse} id="navbarNav">
-              <ul className={styles.nav_list}>
-                <li className={styles.nav_list__item}>
-                  <a className={styles.nav_link} href="/projects">
-                    Projects
-                  </a>
-                </li>
-                <li className={styles.nav_list__item}>
-                  <a className={styles.nav_link} href="/news">
-                    News
-                  </a>
-                </li>
-                <li className={styles.nav_list__item}>
-                  <a className={styles.nav_link} href="/publications">
-                    Publications
-                  </a>
-                </li>
-                <li className={styles.nav_list__item}>
-                  <a className={styles.nav_link} href="/about">
-                    About
-                  </a>
-                </li>
-              </ul>
-              {/* <ul className={styles.nav_list}>
-                <li className={styles.nav_list__dropdown}>
-                  <a
-                    href="#"
-                    id="navbarDropdown"
-                    role="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    Dropdown
-                  </a>
-                  <ul aria-labelledby="navbarDropdown">
-                    <li>
-                      <a href="#">Action</a>
-                    </li>
-                    <li>
-                      <a href="#">Another action</a>
-                    </li>
-                    <li>
-                      <hr />
-                    </li>
-                    <li>
-                      <a href="#">Something else here</a>
-                    </li>
-                  </ul>
-                </li>
-              </ul> */}
+              <MLClassifierUI
+                getMLClassifier={this.getMLClassifier}
+                onAddDataStart={this.onBeginTraining}
+                onTrainComplete={this.onTrainComplete}
+                showDownload={!SHOW_DOWNLOAD}
+              />
             </div>
-          </div>
-        </nav>
-        <div
-          className={`${styles.classifierContainer} ${
-            SHOW_HELP ? null : styles.center
-          }`}
-        >
-          <div
-            className={`${styles.app} ${SHOW_HELP ? null : styles.centeredApp}`}
-          >
-            <MLClassifierUI
-              getMLClassifier={this.getMLClassifier}
-              onAddDataStart={this.onBeginTraining}
-              onTrainComplete={this.onTrainComplete}
-              showDownload={!SHOW_DOWNLOAD}
-            />
-          </div>
-          {SHOW_HELP && this.state.training === false && (
-            <div className={styles.info}>
-              <h2>Instructions</h2>
-              <p>
-                Drag and drop some labeled images below to begin training your
-                classifier.{" "}
-              </p>
-              <p>
-                <em>
-                  Organize your images into folders, where the folders' names
-                  are the desired labels.
-                </em>
-              </p>
-              <div className={styles.imgContainer}>
+            {SHOW_HELP && this.state.training === false && (
+              <div className={styles.info}>
+                <h2>Instructions</h2>
+                <Modal />
+                <div className="col-md-4">
+                  <ImageSelect label="A" currentGroup="good"></ImageSelect>
+                  <ImageSelect label="B" currentGroup="bad"></ImageSelect>
+                </div>
+                <p>
+                  Drag and drop some labeled images below to begin training your
+                  classifier.{" "}
+                </p>
+                <p>
+                  <em>
+                    Organize your images into folders, where the folders' names
+                    are the desired labels.
+                  </em>
+                </p>
+                {/* <div className={styles.imgContainer}>
                 <img src="https://github.com/thekevinscott/ml-classifier-ui/raw/master/example/public/example-600.gif" />
+              </div> */}
               </div>
-            </div>
-          )}
-        </div>
-        {/* {SHOW_HELP && this.state.training === false && (
+            )}
+          </div>
+          {/* {SHOW_HELP && this.state.training === false && (
           <React.Fragment>
             <hr />
             <div className={styles.info}>
@@ -234,7 +170,8 @@ class App extends React.Component {
             <Search train={this.train} />
           </React.Fragment>
         )} */}
-      </React.Fragment>
+        </div>
+      </>
     );
   }
 }

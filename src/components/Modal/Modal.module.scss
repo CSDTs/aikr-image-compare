@@ -1,0 +1,60 @@
+@import "../../../node_modules/bootstrap/scss/bootstrap.scss";
+
+.prompt {
+  z-index: 1058;
+  color: hsl(0, 0%, 42%);
+}
+
+// dialog
+.prompt > div {
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+//content
+.prompt > div > div {
+  background-color: hsl(0, 0%, 99%);
+  border-top: 6px solid #0092ed;
+}
+
+//header
+.prompt > div > div > div:nth-child(1) {
+  margin-top: 1rem;
+  border-bottom: 0px solid #dee2e6;
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+.prompt > div > div > div:nth-child(1) > h5 {
+  color: hsl(0, 0%, 27%) !important;
+  font-weight: 600;
+  font-size: 1.4rem;
+  width: 100% !important;
+  text-align: left !important;
+}
+
+//body
+.prompt > div > div > div:nth-child(2) {
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+.prompt > div > div > div:nth-child(2) > p {
+  margin-bottom: 0;
+}
+//Footer
+.prompt > div > div > div:nth-child(3) {
+  margin-top: 1.5rem;
+  background-color: hsl(0, 0%, 93%);
+  border-top: 0px;
+  padding-left: 25px;
+  padding-right: 25px;
+  font-size: 0.9rem;
+}
+
+.prompt > div > div > div:nth-child(3) > button {
+  /* color: hsl(0, 0%, 27%) !important; */
+  border: 0px;
+  background-color: hsla(203, 100%, 46%, 1);
+}
