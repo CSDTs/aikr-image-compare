@@ -2,17 +2,8 @@ import React, { Component } from "react";
 import { render } from "react-dom";
 import SelectImage from "../SelectImage";
 import getFile from "../../Dropzone/getFile";
-import img1 from "../../App/data/training/goodfood/apple sauce + grapes.jpeg";
-import img2 from "../../App/data/training/goodfood/apple sauce + grapes.jpeg";
-import img3 from "../../App/data/training/goodfood/apple sauce + grapes.jpeg";
-import img4 from "../../App/data/training/goodfood/apple sauce + grapes.jpeg";
-import img5 from "../../App/data/training/badfood/pizza 2.jpeg";
-import img6 from "../../App/data/training/badfood/pizza 2.jpeg";
-import img7 from "../../App/data/training/badfood/pizza 2.jpeg";
-import img8 from "../../App/data/training/badfood/pizza 2.jpeg";
-import { image } from "@tensorflow/tfjs";
 
-const imageList = [img1, img2, img3, img4];
+import { image } from "@tensorflow/tfjs";
 
 class Select extends Component {
   constructor(props) {
@@ -90,9 +81,6 @@ class Select extends Component {
           value={this.state.images && JSON.stringify(this.state.images)}
           disabled
         />
-        <button type="button" onClick={() => console.log(this.state.image)}>
-          OK
-        </button>
       </div>
     );
   }

@@ -6,7 +6,7 @@ import Search, { IImage } from "../Search";
 
 import Modal from "../components/Modal";
 import Navigation from "../components/Navigation";
-import ImageSelect from "../components/ImageSelect";
+import SetSelect from "../components/SetSelect";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
@@ -120,12 +120,12 @@ class App extends React.Component {
         <div className="container">
           <h2>AI App 1: Joe's Lunch</h2>
           <div className="row">
-            <div className="col-md-4">
-              <ImageSelect label="A" currentGroup="good"></ImageSelect>
-              <ImageSelect label="B" currentGroup="bad"></ImageSelect>
+            <div className="col-md-5">
+              <SetSelect label="A" currentGroup="good"></SetSelect>
+              <SetSelect label="B" currentGroup="bad"></SetSelect>
             </div>
 
-            <div className="col-md-4">
+            <div className="col-md-5">
               <MLClassifierUI
                 getMLClassifier={this.getMLClassifier}
                 onAddDataStart={this.onBeginTraining}
@@ -134,7 +134,7 @@ class App extends React.Component {
               />
             </div>
 
-            <div className="col-md-4">
+            <div className="col-md-2">
               <p>
                 Drag and drop some labeled images below to begin training your
                 classifier.{" "}

@@ -53,10 +53,21 @@ class Dropzone extends React.Component<IProps, IState> {
   };
 
   public handleOnClick = () => {
-    const groupA = document.querySelectorAll("textarea")[0];
-    const groupB = document.querySelectorAll("textarea")[1];
-    const groupAValues = JSON.parse(groupA.value);
-    const groupBValues = JSON.parse(groupB.value);
+    const groupALabel = document.querySelectorAll(
+      ".card .input-group input"
+    )[0];
+    const groupBLabel = document.querySelectorAll(
+      ".card .input-group input"
+    )[1];
+
+    const groupABody = document.querySelectorAll(".card .card-body")[0];
+    const groupBBody = document.querySelectorAll(".card .card-body")[1];
+
+    // console.log(groupALabel, groupBLabel);
+
+    // console.log(groupABody, groupBBody);
+
+    // console.log(groupABody.querySelector(`p`));
 
     let dataURLtoFile = (dataurl: any, filename: any) => {
       let arr = dataurl.split(","),
@@ -86,6 +97,18 @@ class Dropzone extends React.Component<IProps, IState> {
     };
 
     const getAllUrls = async () => {
+      let groupA = groupABody.querySelector("textarea") as HTMLTextAreaElement;
+      let groupB = groupBBody.querySelector("textarea") as HTMLTextAreaElement;
+
+      if (groupA === null || groupB === null)
+        throw Error("You must select a data set for each group");
+
+      let groupAValues = JSON.parse(groupA.value);
+      let groupBValues = JSON.parse(groupB.value);
+
+      if (groupAValues.length === 0 || groupBValues.length === 0)
+        throw Error("You must select at least one image for each group");
+
       let arr = new Array<object>();
 
       for (let img of groupAValues) {
@@ -93,7 +116,7 @@ class Dropzone extends React.Component<IProps, IState> {
           arr.push({
             src: data,
             file: dataURLtoFile(data, "test.png"),
-            label: "groupA",
+            label: (groupALabel as HTMLInputElement).value,
           });
         });
       }
@@ -103,7 +126,7 @@ class Dropzone extends React.Component<IProps, IState> {
           arr.push({
             src: data,
             file: dataURLtoFile(data, "test.png"),
-            label: "groupB",
+            label: (groupBLabel as HTMLInputElement).value,
           });
         });
       }
@@ -122,8 +145,10 @@ class Dropzone extends React.Component<IProps, IState> {
         });
         return convertedImagesNeh;
       })
+      .catch((e) => {
+        alert(e);
+      })
       .then((arr) => {
-        // console.log(arr);
         this.props.onParseObject(arr);
       });
   };
