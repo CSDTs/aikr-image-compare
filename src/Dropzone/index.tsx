@@ -2,13 +2,14 @@ import * as React from "react";
 import classNames from "../utils/classNames";
 import transformFiles from "./transformFiles";
 import styles from "./Dropzone.module.scss";
-
+import "bootstrap/dist/css/bootstrap.min.css";
 interface IProps {
   onDrop?: Function;
   onParseFiles: Function;
   onParseObject: Function;
   style?: any;
   children?: any;
+  mode?: any;
 }
 
 interface IState {
@@ -187,7 +188,7 @@ class Dropzone extends React.Component<IProps, IState> {
           // onDragStart={this.handleDrag(true)}
           // onDragEnd={this.handleDrag(false)}
           onDrop={this.handleDrop}
-          onClick={this.handleOnClick}
+          // onClick={this.handleOnClick}
           onDragOver={this.stop}
           style={this.props.style}
         >
@@ -200,7 +201,9 @@ class Dropzone extends React.Component<IProps, IState> {
             multiple={true}
           />
         </div>
-        <button onClick={this.handleOnClick}>Train Model</button>
+        <button onClick={this.handleOnClick} className="btn btn-primary w-100 ">
+          {this.props.mode || "Train Model"}
+        </button>
       </>
     );
   }

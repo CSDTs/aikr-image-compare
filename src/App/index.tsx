@@ -117,66 +117,59 @@ class App extends React.Component {
       <>
         <Navigation user={currentUserValue}></Navigation>
 
-        <div className="container">
-          <h2>AI App 1: Joe's Lunch</h2>
-          <div className="row">
-            <div className="col-md-5">
+        <div className={styles.containerBody + " container"}>
+          <div className={styles.containerRow + " row"}>
+            <div className="col-md-4">
+              <h2>AI App 1: Joe's Lunch</h2>
               <SetSelect label="A" currentGroup="good"></SetSelect>
               <SetSelect label="B" currentGroup="bad"></SetSelect>
             </div>
 
-            <div className="col-md-5">
+            <div className="col-md-8">
               <MLClassifierUI
                 getMLClassifier={this.getMLClassifier}
                 onAddDataStart={this.onBeginTraining}
                 onTrainComplete={this.onTrainComplete}
                 showDownload={!SHOW_DOWNLOAD}
+                params={{
+                  train: {
+                    epochs: 20,
+                  },
+                  evaluate: {
+                    batchSize: 32,
+                  },
+                  save: {},
+                }}
               />
             </div>
 
-            <div className="col-md-2">
-              <p>
-                Drag and drop some labeled images below to begin training your
-                classifier.{" "}
-              </p>
-              <p>
-                <em>
-                  Organize your images into folders, where the folders' names
-                  are the desired labels.
-                </em>
-              </p>
-            </div>
-
-            <Modal />
-          </div>
-        </div>
-
-        <div className={styles.classifierContainer}>
-          <div className={`row ${SHOW_HELP ? null : styles.center}`}>
-            <div
-              className={`${styles.app} ${
-                SHOW_HELP ? null : styles.centeredApp
-              }`}
-            ></div>
-            {SHOW_HELP && this.state.training === false && (
-              <div className={styles.info}>
-                <p>
-                  Drag and drop some labeled images below to begin training your
-                  classifier.{" "}
-                </p>
-                <p>
-                  <em>
-                    Organize your images into folders, where the folders' names
-                    are the desired labels.
-                  </em>
-                </p>
-                {/* <div className={styles.imgContainer}>
+            <div className="col-md-4" hidden>
+              <div className={styles.classifierContainer}>
+                <div className={`row ${SHOW_HELP ? null : styles.center}`}>
+                  <div
+                    className={`${styles.app} ${
+                      SHOW_HELP ? null : styles.centeredApp
+                    }`}
+                  ></div>
+                  {SHOW_HELP && this.state.training === false && (
+                    <div className={styles.info}>
+                      <p>
+                        Drag and drop some labeled images below to begin
+                        training your classifier.{" "}
+                      </p>
+                      <p>
+                        <em>
+                          Organize your images into folders, where the folders'
+                          names are the desired labels.
+                        </em>
+                      </p>
+                      {/* <div className={styles.imgContainer}>
                 <img src="https://github.com/thekevinscott/ml-classifier-ui/raw/master/example/public/example-600.gif" />
               </div> */}
-              </div>
-            )}
-          </div>
-          {/* {SHOW_HELP && this.state.training === false && (
+                    </div>
+                  )}
+                </div>
+                {/* {SHOW_HELP && this.state.training === false && (
           <React.Fragment>
             <hr />
             <div className={styles.info}>
@@ -194,6 +187,11 @@ class App extends React.Component {
             <Search train={this.train} />
           </React.Fragment>
         )} */}
+              </div>
+            </div>
+
+            <Modal />
+          </div>
         </div>
       </>
     );

@@ -3,6 +3,8 @@
   width: 300px;
   background: white;
   height: 300px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .classifier h1,

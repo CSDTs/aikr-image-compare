@@ -64,7 +64,6 @@ class Select extends Component {
   render() {
     return (
       <div>
-        <h3>Multiple Select</h3>
         <SelectImage
           images={this.props.imageList.map((image, i) => ({
             src: image,
@@ -80,6 +79,7 @@ class Select extends Component {
           cols="100"
           value={this.state.images && JSON.stringify(this.state.images)}
           disabled
+          hidden
         />
       </div>
     );

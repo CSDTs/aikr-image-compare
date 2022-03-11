@@ -56,7 +56,7 @@ function Navigation(props) {
   }
 
   return (
-    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" fixed="top">
       <Container>
         <Navbar.Brand href="/">
           <img src={NSF} width="40" height="40" alt="" />

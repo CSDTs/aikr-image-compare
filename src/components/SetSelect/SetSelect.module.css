@@ -1,1 +1,52 @@
-/* No CSS *//*# sourceMappingURL=SetSelect.module.css.map */
+@charset "UTF-8";
+.previewContainer {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.previewContainer::-webkit-scrollbar {
+  height: 0.5rem;
+  /* height of horizontal scrollbar ← You're missing this */
+  width: 0.5rem;
+  /* width of vertical scrollbar */
+  border: 1px solid #e9ecef;
+  background-color: #e9ecef;
+  border-radius: 10px;
+}
+
+.previewContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.previewContainer::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.previewContainer::-webkit-scrollbar-thumb:horizontal {
+  background: #aecbfa;
+  border-radius: 10px;
+}
+
+.previewContainer::-webkit-scrollbar-thumb:horizontal:hover {
+  background: #0092ed;
+}
+
+.btnModified {
+  width: auto;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+}
+
+.inputGroup label {
+  background: #fff;
+  font-weight: 600;
+  color: #3c4043;
+  border: 0px;
+}
+/*# sourceMappingURL=SetSelect.module.css.map */

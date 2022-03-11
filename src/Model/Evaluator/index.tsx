@@ -40,6 +40,7 @@ class Evaluator extends React.Component<IProps, IState> {
         <Dropzone
           onParseFiles={this.onParseFiles}
           onParseObject={this.onParseObject}
+          mode="Evaluate Images"
           style={{
             borderRadius: "0 0 5px 5px",
             marginTop: "-2px",

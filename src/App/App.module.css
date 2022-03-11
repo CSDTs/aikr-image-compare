@@ -12099,4 +12099,15 @@ nav div div.nav_collapse ul.nav_list {
 nav div div.nav_collapse ul.nav_list li.nav_list__item a.nav_link {
   color: rgba(255, 255, 255, 0.5);
 }
+
+.containerBody {
+  height: 100%;
+}
+
+.containerRow {
+  height: 85%;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
 /*# sourceMappingURL=App.module.css.map */

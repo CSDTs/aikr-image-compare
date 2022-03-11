@@ -7,7 +7,7 @@ import SelectModal from "./modalset";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "react-image-picker/dist/index.css";
-import "./SetSelect.module.css";
+import styles from "./SetSelect.module.css";
 
 import { healthyDataSet, unhealthyDataSet } from "./datasets";
 
@@ -74,18 +74,22 @@ class SetSelect extends React.Component {
         </div>
         <div className="card-body">
           <div className="row">
-            <strong className="figure-caption ">Add Image Samples:</strong>
-
-            <div className="input-group mb-3 ">
-              <label className="input-group-text">Sets</label>
-              <select className="form-select" onChange={this.handleChange}>
-                <option value="" defaultValue="">
-                  Choose...
-                </option>
-                <option value="good">Good Foods</option>
-                <option value="bad">Bad Foods</option>
-              </select>
-            </div>
+            <section className="col-md-10">
+              <div
+                className={
+                  styles.inputGroup + " input-group input-group-sm mb-3"
+                }
+              >
+                <label className="input-group-text"> Image Set:</label>
+                <select className="form-select" onChange={this.handleChange}>
+                  <option value="" defaultValue="">
+                    Choose...
+                  </option>
+                  <option value="good">Good Foods</option>
+                  <option value="bad">Bad Foods</option>
+                </select>
+              </div>
+            </section>
           </div>
 
           <SelectModal

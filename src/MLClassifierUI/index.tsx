@@ -17,7 +17,7 @@ import Preview from "../Preview";
 import MLClassifier from "ml-classifier";
 
 import styles from "./MLClassifierUI.module.scss";
-
+import "bootstrap/dist/css/bootstrap.min.css";
 export interface IImage {
   imageSrc: string;
   label: string;
@@ -163,24 +163,17 @@ class MLClassifierUI extends React.Component<IProps, IState> {
   private onParseFiles = async (origFiles: FileList) => {
     const imageFiles: IFileData[] = await getFilesAsImageArray(origFiles);
 
-    console.log(imageFiles);
-    console.log(typeof imageFiles);
     const { images, labels, files } = await splitImagesFromLabels(imageFiles);
 
     this.setState({
       files,
     });
-
-    console.log(images);
-    console.log(labels);
-    console.log(files);
-
     return this.classifier.addData(images, labels, "train");
   };
 
   private onParseObject = (origFiles: Array<any>) => {
     // const imageFiles: IFileData[] = await getFilesAsImageArray(origFiles);
-    console.log(origFiles);
+
     let files = new Array<object>();
     let labels = new Array<string>();
     let images = new Array<string>();
@@ -198,9 +191,6 @@ class MLClassifierUI extends React.Component<IProps, IState> {
     labels = origFiles.map((file) => {
       return file.label;
     });
-    console.log(images);
-    console.log(labels);
-    console.log(files);
 
     // const { images, labels, files } = await splitImagesFromLabels(origFiles);
 
@@ -328,31 +318,37 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <div className={styles.classifier}>
-        {this.state.status === "empty" && (
-          <Dropzone
-            onDrop={this.onDrop}
-            onParseFiles={this.onParseFiles}
-            onParseObject={this.onParseObject}
-          />
-        )}
-        {["training", "uploading", "parsing"].includes(this.state.status) && (
-          <Preview images={this.state.images} />
-        )}
-        {this.state.status === "trained" && this.state.images && (
-          <Model
-            logs={this.state.logs}
-            labels={this.state.labels}
-            downloading={this.state.downloading}
-            onDownload={
-              this.props.showDownload ? this.handleDownload : undefined
-            }
-            predict={this.predict}
-            predictions={this.state.predictions}
-            accuracy={this.state.accuracy}
-            errors={this.state.errors}
-          />
-        )}
+      <div className="row align-items-center">
+        <div className={styles.classifier + " col-md-6"}>
+          {(this.state.status === "empty" ||
+            this.state.status === "trained") && (
+            <Dropzone
+              onDrop={this.onDrop}
+              onParseFiles={this.onParseFiles}
+              onParseObject={this.onParseObject}
+            />
+          )}
+          {["training", "uploading", "parsing"].includes(this.state.status) && (
+            <Preview images={this.state.images} />
+          )}
+        </div>
+
+        <div className={styles.classifier + " col-md-6"}>
+          {this.state.status === "trained" && this.state.images && (
+            <Model
+              logs={this.state.logs}
+              labels={this.state.labels}
+              downloading={this.state.downloading}
+              onDownload={
+                this.props.showDownload ? this.handleDownload : undefined
+              }
+              predict={this.predict}
+              predictions={this.state.predictions}
+              accuracy={this.state.accuracy}
+              errors={this.state.errors}
+            />
+          )}
+        </div>
       </div>
     );
   }
