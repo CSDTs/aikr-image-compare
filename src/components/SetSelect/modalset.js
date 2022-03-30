@@ -39,6 +39,11 @@ function SelectModal(props) {
   return (
     <>
       <div className="row justify-content-around">
+      <p hidden={preview.length !== 0 }>{preview.length === 0 ? "Click to add images to training group": ""}</p>
+      <div className="col-md-12 mb-3">
+
+      <div className={styles.previewContainer + " row"}>{preview}</div>
+    </div>
         <Button
           variant="outline-primary"
           onClick={handleShow}
@@ -48,15 +53,13 @@ function SelectModal(props) {
           <FontAwesomeIcon icon={faCirclePlus} className="pe-2 ps-1" />
           Add
         </Button>
-        <div className="col-md-8">
-          <div className={styles.previewContainer + " row"}>{preview}</div>
-        </div>
+
       </div>
       <textarea value={obj} className="w-100 mt-3" disabled hidden></textarea>
 
       <Modal show={show} onHide={handleClose} centered size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Select Images to Train Model</Modal.Title>
+          <Modal.Title>Select Images to Train {props.extra} Model</Modal.Title>
         </Modal.Header>
         <Modal.Body>{props.content}</Modal.Body>
         <Modal.Footer>

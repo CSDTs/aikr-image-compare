@@ -1,25 +1,34 @@
 .container {
-  img {
-    width: 100%;
-    max-width: 300px;
-    display: block;
-  }
+	img {
+		width: 100%;
+		max-width: 300px;
+		display: block;
+	}
 }
 
 .info {
-  border-radius: 0 0 5px 5px;
-  background: rgba(0, 13, 51, 0.6);
-  padding: 10px !important;
-  display: flex;
-  color: rgba(255, 255, 255, 0.8);
-  flex: 1;
-  margin-bottom: 20px !important;
+	border-radius: 0 0 5px 5px;
+	list-style: none;
+	background: rgba(0, 13, 51, 0.6);
+	padding: 10px !important;
+	display: flex;
+	color: rgba(255, 255, 255, 0.8);
+	flex: 1;
+	margin-bottom: 20px !important;
 
-  li {
-    flex: 1;
-  }
+	li {
+		flex: 1;
+	}
 }
 
 .label {
-  text-align: right;
+	text-align: right;
+}
+
+.colorChange {
+	filter: invert(32%) sepia(74%) saturate(468%) hue-rotate(94deg) brightness(98%) contrast(91%);
+}
+
+.backgroundSwap {
+	background-color: #000d3399;
 }

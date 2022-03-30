@@ -29,9 +29,11 @@
 }
 
 .btnModified {
-  width: auto;
+  // width: auto;
   height: fit-content;
   align-self: center;
+  display:block;
+  width: 100%;
 }
 
 .inputGroup {

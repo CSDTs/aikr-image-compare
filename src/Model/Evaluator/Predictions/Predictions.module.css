@@ -6,6 +6,7 @@
 
 .info {
   border-radius: 0 0 5px 5px;
+  list-style: none;
   background: rgba(0, 13, 51, 0.6);
   padding: 10px !important;
   display: -webkit-box;
@@ -26,5 +27,14 @@
 
 .label {
   text-align: right;
+}
+
+.colorChange {
+  -webkit-filter: invert(32%) sepia(74%) saturate(468%) hue-rotate(94deg) brightness(98%) contrast(91%);
+          filter: invert(32%) sepia(74%) saturate(468%) hue-rotate(94deg) brightness(98%) contrast(91%);
+}
+
+.backgroundSwap {
+  background-color: #000d3399;
 }
 /*# sourceMappingURL=Predictions.module.css.map */

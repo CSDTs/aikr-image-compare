@@ -34,13 +34,14 @@
 }
 
 .btnModified {
-  width: auto;
   height: -webkit-fit-content;
   height: -moz-fit-content;
   height: fit-content;
   -ms-flex-item-align: center;
       -ms-grid-row-align: center;
       align-self: center;
+  display: block;
+  width: 100%;
 }
 
 .inputGroup label {

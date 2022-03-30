@@ -21,29 +21,31 @@ import imgUnhealthy8 from "../../App/data/training/unhealthy/bad-8.png";
 import imgUnhealthy9 from "../../App/data/training/unhealthy/bad-9.png";
 
 const healthyDataSet = [
-  imgHealthy0,
-  imgHealthy1,
-  imgHealthy2,
-  imgHealthy3,
-  imgHealthy4,
-  imgHealthy5,
-  imgHealthy6,
-  imgHealthy7,
-  imgHealthy8,
-  imgHealthy9,
+	imgHealthy0,
+	imgHealthy1,
+	imgHealthy2,
+	imgHealthy3,
+	imgHealthy4,
+	imgHealthy5,
+	imgHealthy6,
+	imgHealthy7,
+	imgHealthy8,
+	imgHealthy9,
 ];
 
 const unhealthyDataSet = [
-  imgUnhealthy0,
-  imgUnhealthy1,
-  imgUnhealthy2,
-  imgUnhealthy3,
-  imgUnhealthy4,
-  imgUnhealthy5,
-  imgUnhealthy6,
-  imgUnhealthy7,
-  imgUnhealthy8,
-  imgUnhealthy9,
+	imgUnhealthy0,
+	imgUnhealthy1,
+	imgUnhealthy2,
+	imgUnhealthy3,
+	imgUnhealthy4,
+	imgUnhealthy5,
+	imgUnhealthy6,
+	imgUnhealthy7,
+	imgUnhealthy8,
+	imgUnhealthy9,
 ];
 
-export { healthyDataSet, unhealthyDataSet };
+const completeDataSet = [...healthyDataSet, ...unhealthyDataSet];
+
+export { healthyDataSet, unhealthyDataSet, completeDataSet };
