@@ -41,6 +41,7 @@ interface IState {
 		src: string;
 		prediction: string;
 		label: string;
+		score: Array<any>;
 	}[];
 	logs: {
 		[index: string]: any;
@@ -241,7 +242,7 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 							train.callbacks.onBatchEnd(batch, logs);
 						}
 						const loss = logs.loss.toFixed(5);
-						console.log(logs);
+						// console.log(logs);
 						// log(batch, logs);
 						// log('Loss is: ' + logs.loss.toFixed(5));
 						this.setState({
@@ -274,17 +275,19 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 		}
 	};
 
-	public onPredictComplete = async (src: string, label: string, pred: string | number) => {
+	public onPredictComplete = async (src: string, label: string, pred: string | number, score: any) => {
 		if (this.props.onPredictComplete) {
 			this.props.onPredictComplete(src, label, pred);
 		}
 		const prediction = `${pred}`;
-
+		console.log("Score");
+		console.log(score);
 		this.setState({
 			predictions: this.state.predictions.concat({
 				src,
 				prediction,
 				label,
+				score,
 			}),
 		});
 	};

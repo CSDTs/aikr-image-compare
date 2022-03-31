@@ -64,7 +64,7 @@ class Model extends React.Component<IProps, IState> {
 				label: "Evaluation",
 			},
 		];
-		console.log(predict);
+		// console.log(predict);
 		return (
 			<section className="row">
 				<div className={`col-md-6 ${styles.classifier}`}>

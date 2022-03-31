@@ -120,10 +120,10 @@ class App extends React.Component {
 	public render() {
 		const processedImages = "My Context Value";
 		const currentUserValue = localStorage.getItem("currentUser");
-		if (typeof currentUserValue === "string") {
-			// const parse = JSON.parse(value); // ok
-			console.log("currentUser: ", JSON.parse(currentUserValue));
-		}
+		// if (typeof currentUserValue === "string") {
+		// 	// const parse = JSON.parse(value); // ok
+		// 	console.log("currentUser: ", JSON.parse(currentUserValue));
+		// }
 		let trainingState = this.state.trainingState;
 		return (
 			<>

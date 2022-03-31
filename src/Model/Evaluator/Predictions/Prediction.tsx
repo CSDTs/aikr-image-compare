@@ -7,25 +7,27 @@ export interface IPrediction {
 	prediction: string;
 	label: string;
 	src: string;
+	score: any;
 }
 
 interface IProps {
 	prediction: IPrediction;
 }
 
-const Prediction: React.SFC<IProps> = ({ prediction: { src, prediction, label } }) => (
+const Prediction: React.SFC<IProps> = ({ prediction: { src, prediction, label, score } }) => (
 	<>
 		<section className="px-2 py-2">
 			<p className="text-center">
 				Is it a <strong>{label}</strong> meal?
 			</p>
 
+			<p>Confidence Level</p>
 			<div className="row justify-content-between">
 				<div className="col-3 text-center">
 					<span className="text-center">Yes</span>
 				</div>
 				<div className="col-9  align-self-center">
-					<ProgressBar now={prediction === label ? 100 : 0} label={prediction === label ? `100%` : `0%`} />
+					<ProgressBar now={score[0]} label={score[0] + `%`} />
 				</div>
 			</div>
 			<div className="row  justify-content-between">
@@ -33,7 +35,7 @@ const Prediction: React.SFC<IProps> = ({ prediction: { src, prediction, label } 
 					<span>No</span>
 				</div>
 				<div className="col-9 align-self-center">
-					<ProgressBar now={prediction === label ? 0 : 100} label={prediction === label ? `0%` : `100%`} />
+					<ProgressBar now={score[1]} label={score[1] + `%`} />
 				</div>
 			</div>
 		</section>

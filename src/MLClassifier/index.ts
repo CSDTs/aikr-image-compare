@@ -192,6 +192,7 @@ class MLClassifier {
 
 	public predict = async (origImage: tf.Tensor | HTMLImageElement | string, label?: string) => {
 		try {
+			let score, convertedScore;
 			this.callbackFn("onPredict", "start", origImage);
 			await this.loaded();
 			if (!this.model) {
@@ -207,11 +208,25 @@ class MLClassifier {
 			// TODO: Do these images need to be activated?
 			const predictedClass = tf.tidy(() => {
 				const predictions = this.model.predict(img);
+
+				score = predictions.toString();
+				score = score.replace(/[\[\]']+/g, "");
+				score = score.replace(/["Tensor"]+/g, "");
+				score = score.trim();
+				score = score.replaceAll(",", "");
+				score = score.split(" ");
+
+				convertedScore = score.map((value) => (parseFloat(value) * 100).toFixed(2));
+				console.log("perciction");
+				console.log(score);
+				console.log(convertedScore);
+
 				// TODO: address this
 				return (predictions as tf.Tensor).as1D().argMax();
 			});
 
 			const classId = (await predictedClass.data())[0];
+
 			predictedClass.dispose();
 			const prediction = Object.entries(this.data.classes).reduce(
 				(obj, [key, val]) => ({
@@ -220,7 +235,7 @@ class MLClassifier {
 				}),
 				{}
 			)[classId];
-			this.callbackFn("onPredict", "complete", origImage, label, prediction);
+			this.callbackFn("onPredict", "complete", origImage, label, prediction, convertedScore);
 			return prediction;
 		} catch (err) {
 			console.error(err, origImage, label);
