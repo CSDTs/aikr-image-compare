@@ -13,6 +13,7 @@ import SetSelect from "../components/SetSelect";
 // import MLClassifier from "ml-classifier";
 import MLClassifier from "../MLClassifier";
 
+import { Accordion, Form, Button } from "react-bootstrap";
 import styles from "./MLClassifierUI.module.scss";
 import "bootstrap/dist/css/bootstrap.min.css";
 export interface IImage {
@@ -107,6 +108,9 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 				evaluation: undefined,
 			},
 		};
+
+		// this.handleEpochChange = this.handleEpochChange.bind(this);
+		// this.handleBatchSizeChange = this.handleBatchSizeChange.bind(this);
 	}
 
 	componentDidMount = async () => {
@@ -167,8 +171,6 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 	};
 
 	private onParseObject = (origFiles: Array<any>) => {
-		// const imageFiles: IFileData[] = await getFilesAsImageArray(origFiles);
-
 		let files = new Array<object>();
 		let labels = new Array<string>();
 		let images = new Array<string>();
@@ -186,27 +188,6 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 		labels = origFiles.map((file) => {
 			return file.label;
 		});
-
-		// const { images, labels, files } = await splitImagesFromLabels(origFiles);
-
-		// this.setState({
-		//   files,
-		// });
-
-		// let files = [];
-		// let images = [];
-		// let labels = [];
-
-		// for (let file of origFiles) {
-
-		//   files.push(file.file);
-		//   images.push(file.src);
-		//   labels.push(file.label);
-		// }
-
-		// console.log(images);
-		// console.log(labels);
-		// console.log(files);
 
 		return this.classifier.addData(images, labels, "train");
 	};
@@ -234,6 +215,7 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 			});
 
 			const train = this.props.params.train || {};
+			console.log(train);
 			const result: ITrainResult = await this.classifier.train({
 				...train,
 				callbacks: {
@@ -310,11 +292,21 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 		});
 	};
 
+	// private handleEpochChange(event: Event | any) {
+	// 	if (this.props.params.train?.epochs) {
+	// 		this.props.params.train.epochs = parseInt(event.target.value);
+	// 	}
+	// }
+	// private handleBatchSizeChange(event: Event | any) {
+	// 	if (this.props.params.evaluate?.batchSize) {
+	// 		this.props.params.evaluate.batchSize = parseInt(event.target.value);
+	// 	}
+	// }
 	public render() {
 		return (
 			<div className="row align-items-center">
-				{this.state.status === "empty" && (
-					<div className={styles.classifier + " col-md-6"}>
+				{(this.state.status === "empty" || this.props.trainingState === "selection") && (
+					<div className={styles.classifierAlt + " col-md-6"}>
 						<Dropzone onDrop={this.onDrop} onParseFiles={this.onParseFiles} onParseObject={this.onParseObject} />
 					</div>
 				)}
@@ -324,7 +316,7 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 					</div>
 				)}
 
-				{this.state.status === "trained" && this.state.images && (
+				{this.state.status === "trained" && this.props.trainingState === "evaluation" && this.state.images && (
 					<div className={" col-md-12"}>
 						<Model
 							logs={this.state.logs}

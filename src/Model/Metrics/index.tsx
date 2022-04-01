@@ -57,7 +57,7 @@ class Metrics extends React.Component<IProps> {
 		const { labels, onDownload, downloading, accuracy, logs, errors } = this.props;
 
 		return (
-			<Accordion>
+			<Accordion hidden>
 				<Accordion.Item eventKey="0">
 					<Accordion.Header>Model Information</Accordion.Header>
 					<Accordion.Body>

@@ -10,6 +10,7 @@ interface IProps {
 	style?: any;
 	children?: any;
 	mode?: any;
+	enableDrop?: boolean;
 }
 
 interface IState {
@@ -59,12 +60,6 @@ class Dropzone extends React.Component<IProps, IState> {
 
 		const groupABody = document.querySelectorAll(".card .card-body")[0];
 		const groupBBody = document.querySelectorAll(".card .card-body")[1];
-
-		// console.log(groupALabel, groupBLabel);
-
-		// console.log(groupABody, groupBBody);
-
-		// console.log(groupABody.querySelector(`p`));
 
 		let dataURLtoFile = (dataurl: any, filename: any) => {
 			let arr = dataurl.split(","),
@@ -196,6 +191,7 @@ class Dropzone extends React.Component<IProps, IState> {
 				this.props.onParseObject(arr);
 			});
 	};
+
 	componentWillUnmount() {
 		if (this.timeout) {
 			clearTimeout(this.timeout);
@@ -224,29 +220,31 @@ class Dropzone extends React.Component<IProps, IState> {
 			[styles.over]: this.state.over,
 		});
 
-		let isHidden = this.props.mode === "Evaluate Images";
+		let enableFileDrop = this.props.enableDrop;
 		return (
 			<>
-				<div
-					className={className}
-					draggable={true}
-					// onDragStart={this.handleDrag(true)}
-					// onDragEnd={this.handleDrag(false)}
-					// onDrop={this.handleDrop}
-					// onClick={this.handleOnClick}
-					onDragOver={this.stop}
-					style={this.props.style}
-					// hidden={isHidden}
-					hidden>
-					{/* {this.props.children || <span>Drop Images To Begin Training</span>} */}
-					{/* <input
-            className={styles.input}
-            type="file"
-            name="files[]"
-            data-multiple-caption="{count} files selected"
-            multiple={true}
-          /> */}
-				</div>
+				{enableFileDrop && (
+					<div
+						className={className}
+						draggable={true}
+						// onDragStart={this.handleDrag(true)}
+						// onDragEnd={this.handleDrag(false)}
+						onDrop={this.handleDrop}
+						// onClick={this.handleOnClick}
+						onDragOver={this.stop}
+						style={this.props.style}
+						// hidden={isHidden}
+					>
+						{this.props.children || <span>Drop Images To Begin Training</span>}
+						<input
+							className={styles.input}
+							type="file"
+							name="files[]"
+							data-multiple-caption="{count} files selected"
+							multiple={true}
+						/>
+					</div>
+				)}
 				<button onClick={this.handleOnClick} className="btn btn-primary w-100 ">
 					{this.props.mode || "Train Model"}
 				</button>

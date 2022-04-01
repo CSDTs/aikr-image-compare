@@ -216,7 +216,7 @@ class MLClassifier {
 				score = score.replaceAll(",", "");
 				score = score.split(" ");
 
-				convertedScore = score.map((value) => (parseFloat(value) * 100).toFixed(2));
+				convertedScore = score.map((value) => (parseFloat(value.replace("-", "e-")) * 100).toFixed(2));
 				console.log("perciction");
 				console.log(score);
 				console.log(convertedScore);

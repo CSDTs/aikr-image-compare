@@ -1,8 +1,4 @@
 import * as React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser as SolidUser } from "@fortawesome/free-solid-svg-icons";
-import { faUser as RegUser, faCircleQuestion } from "@fortawesome/free-regular-svg-icons";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import styles from "./ProgressBar.module.css";
 
@@ -38,7 +34,7 @@ class ProgressBar extends React.Component {
 						current === 0 || current === 1 ? styles.step__incomplete : styles.step__complete
 					} ${current === 2 ? styles.step__active : styles.step__inactive}`}>
 					<span className={styles.step__icon}></span>
-					<span className={styles.step__label}>Evaluate</span>
+					<span className={styles.step__label}>Evaluate Images</span>
 				</li>
 			</ul>
 		);

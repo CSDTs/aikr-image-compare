@@ -5,12 +5,12 @@ import MLClassifierUI from "../MLClassifierUI";
 import Search, { IImage } from "../Search";
 import SideNavigation from "../components/SideNavigation";
 import ProgressBar from "../components/ProgressBar";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../components/Modal";
 import Navigation from "../components/Navigation";
 import SetSelect from "../components/SetSelect";
-
-import { ProgressBar as Progress } from "react-bootstrap";
+import { Accordion, Form, Button, OverlayTrigger, Popover } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
@@ -57,6 +57,8 @@ interface IState {
 	evalImages?: IImage[];
 	evaluation: boolean;
 	trainingState: string;
+	epochs: number;
+	batchSize: number;
 }
 
 class App extends React.Component {
@@ -65,12 +67,22 @@ class App extends React.Component {
 		evalImages: undefined,
 		evaluation: false,
 		trainingState: "selection",
+		epochs: 20,
+		batchSize: 32,
 	};
 
 	private classifier: any;
 
 	public getMLClassifier = (classifier: any) => {
 		this.classifier = classifier;
+	};
+
+	public restartTraining = () => {
+		this.setState({
+			training: false,
+			evaluation: false,
+			trainingState: "selection",
+		});
 	};
 
 	public onBeginTraining = () => {
@@ -117,6 +129,16 @@ class App extends React.Component {
 		}
 	};
 
+	private handleEpochChange(event: Event | any) {
+		this.setState({
+			epochs: parseInt(event.target.value),
+		});
+	}
+	private handleBatchSizeChange(event: Event | any) {
+		this.setState({
+			batchSize: parseInt(event.target.value),
+		});
+	}
 	public render() {
 		const processedImages = "My Context Value";
 		const currentUserValue = localStorage.getItem("currentUser");
@@ -135,7 +157,18 @@ class App extends React.Component {
 							<SideNavigation />
 						</div>
 						<div className={`col-lg-10 ${styles.content__container}`}>
-							<h1 className={styles.title}>Joe's Lunch</h1>
+							<div className="row  justify-content-between">
+								<div className="col-auto">
+									<h1 className={`${styles.title}`}>Joe's Lunch</h1>
+								</div>
+								{this.state.trainingState === "evaluation" && (
+									<div className="col-auto align-self-center">
+										<button className="btn btn-link" onClick={this.restartTraining}>
+											Retrain Model
+										</button>
+									</div>
+								)}
+							</div>
 
 							<section className="row">
 								<div className="col-md-12">
@@ -169,7 +202,7 @@ class App extends React.Component {
 										trainingState={trainingState}
 										params={{
 											train: {
-												epochs: 20,
+												epochs: this.state.epochs,
 											},
 											evaluate: {
 												batchSize: 32,
@@ -177,6 +210,83 @@ class App extends React.Component {
 											save: {},
 										}}
 									/>
+									{this.state.training === false && (
+										<Accordion
+											style={{
+												width: "276px",
+											}}
+											className="mx-auto">
+											<Accordion.Item eventKey="0">
+												<Accordion.Header>Advanced</Accordion.Header>
+												<Accordion.Body>
+													<Form>
+														<Form.Group className="mb-3" controlId="formBasicEmail">
+															<Form.Label>Epochs:</Form.Label>
+															<OverlayTrigger
+																// trigger="click"
+																key={"right"}
+																placement={"right"}
+																overlay={
+																	<Popover id={`popover-positioned-${"right"}`}>
+																		<Popover.Header as="h3">Epochs</Popover.Header>
+																		<Popover.Body>
+																			One epoch means that each and every sample in the training dataset has been fed
+																			through the training model at least once. If your epochs are set to 50, for
+																			example, it means that the model you are training will work through the entire
+																			training dataset 50 times. Generally the larger the number, the better your model
+																			will learn to predict the data.
+																		</Popover.Body>
+																	</Popover>
+																}>
+																<Form.Label>
+																	<FontAwesomeIcon icon={faCircleQuestion} className="pe-2 ps-1" />
+																</Form.Label>
+															</OverlayTrigger>
+															<Form.Control
+																type="number"
+																placeholder="eg. 20"
+																defaultValue="20"
+																onChange={this.handleEpochChange.bind(this)}
+															/>
+															<Form.Text className="text-muted">
+																How many times to train each sample in the set.
+															</Form.Text>
+														</Form.Group>
+
+														<Form.Group className="mb-3" controlId="formBasicEmail">
+															<Form.Label>Batch Size:</Form.Label>
+															<OverlayTrigger
+																// trigger="click"
+																key={"right"}
+																placement={"right"}
+																overlay={
+																	<Popover id={`popover-positioned-${"right"}`}>
+																		<Popover.Header as="h3">Batch Size</Popover.Header>
+																		<Popover.Body>
+																			A batch is a set of samples used in one iteration of training. For example, let's
+																			say that you have 80 images and you choose a batch size of 16. This means the data
+																			will be split into 80 / 16 = 5 batches. Once all 5 batches have been fed through
+																			the model, exactly one epoch will be complete.
+																		</Popover.Body>
+																	</Popover>
+																}>
+																<Form.Label>
+																	<FontAwesomeIcon icon={faCircleQuestion} className="pe-2 ps-1" />
+																</Form.Label>
+															</OverlayTrigger>
+															<Form.Control
+																type="number"
+																placeholder="eg. 32"
+																defaultValue="32"
+																onChange={this.handleBatchSizeChange.bind(this)}
+															/>
+															<Form.Text className="text-muted">The size of the set used for the training.</Form.Text>
+														</Form.Group>
+													</Form>
+												</Accordion.Body>
+											</Accordion.Item>
+										</Accordion>
+									)}
 								</div>
 
 								<div className="col-md-4" hidden>
@@ -189,30 +299,9 @@ class App extends React.Component {
 													<p>
 														<em>Organize your images into folders, where the folders' names are the desired labels.</em>
 													</p>
-													{/* <div className={styles.imgContainer}>
-                <img src="https://github.com/thekevinscott/ml-classifier-ui/raw/master/example/public/example-600.gif" />
-              </div> */}
 												</div>
 											)}
 										</div>
-										{/* {SHOW_HELP && this.state.training === false && (
-          <React.Fragment>
-            <hr />
-            <div className={styles.info}>
-              <p>
-                Don't have any images handy? Search below for some images.
-                Select up to 10 that match your query.
-              </p>
-              <p>
-                <em>
-                  <strong>Note</strong> This can be a little buggy at the moment
-                  due to CORS issues. Working on making it better!
-                </em>
-              </p>
-            </div>
-            <Search train={this.train} />
-          </React.Fragment>
-        )} */}
 									</div>
 								</div>
 							</section>
