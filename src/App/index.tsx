@@ -163,7 +163,7 @@ class App extends React.Component {
 								</div>
 								{this.state.trainingState === "evaluation" && (
 									<div className="col-auto align-self-center">
-										<button className="btn btn-link" onClick={this.restartTraining}>
+										<button className="btn btn-secondary" onClick={this.restartTraining}>
 											Retrain Model
 										</button>
 									</div>

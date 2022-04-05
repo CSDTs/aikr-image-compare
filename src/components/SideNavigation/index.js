@@ -19,10 +19,10 @@ function SideNavigation(props) {
 					<a href="../creative.html">How Does AI Work as a Creative Tool?</a>
 				</li>
 				<li className={styles.mainlink}>
-					<a href="../software.html">Create an AI App: AI for African Arts</a>
+					<a href="https://csdt.org/projects/32158/run">Create an AI App: AI for African Arts</a>
 				</li>
 				<li className={styles.mainlink}>
-					<a href="../software.html">Create Your Own AI Project</a>
+					<a href="../create.html">Create Your Own AI Project</a>
 				</li>
 			</ul>
 		</div>

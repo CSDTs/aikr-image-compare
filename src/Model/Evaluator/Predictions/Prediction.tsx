@@ -27,7 +27,7 @@ const Prediction: React.SFC<IProps> = ({ prediction: { src, prediction, label, s
 					<span className="text-center">Yes</span>
 				</div>
 				<div className="col-9  align-self-center">
-					<ProgressBar now={score[0]} label={score[0] + `%`} />
+					<ProgressBar now={score[0]} label={score[0] + `%`} className={styles.contrastBar} />
 				</div>
 			</div>
 			<div className="row  justify-content-between">
@@ -35,7 +35,7 @@ const Prediction: React.SFC<IProps> = ({ prediction: { src, prediction, label, s
 					<span>No</span>
 				</div>
 				<div className="col-9 align-self-center">
-					<ProgressBar now={score[1]} label={score[1] + `%`} />
+					<ProgressBar now={score[1]} label={score[1] + `%`} className={styles.contrastBar} />
 				</div>
 			</div>
 		</section>

@@ -37,4 +37,14 @@
 .backgroundSwap {
   background-color: #000d3399;
 }
+
+.contrastBar {
+  background-color: #9da5b9;
+}
+
+.contrastBar div {
+  overflow: visible;
+  font-weight: 700;
+  color: #fff;
+}
 /*# sourceMappingURL=Predictions.module.css.map */
