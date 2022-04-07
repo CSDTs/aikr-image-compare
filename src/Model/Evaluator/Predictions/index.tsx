@@ -8,13 +8,15 @@ interface IProps {
 
 const Predictions: React.SFC<IProps> = ({ predictions }) => {
 	return (
-		<Carousel fade className={`${styles.backgroundSwap} mt-4`} interval={null}>
-			{predictions.map((prediction: IPrediction, idx: number) => (
-				<Carousel.Item>
-					<Prediction prediction={prediction} key={idx} />
-				</Carousel.Item>
-			))}
-		</Carousel>
+		<>
+			<Carousel fade className={`${styles.backgroundSwap} mt-4`} interval={null}>
+				{predictions.map((prediction: IPrediction, idx: number) => (
+					<Carousel.Item>
+						<Prediction prediction={prediction} key={idx} />
+					</Carousel.Item>
+				))}
+			</Carousel>
+		</>
 	);
 };
 

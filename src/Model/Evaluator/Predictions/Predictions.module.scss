@@ -41,3 +41,20 @@
 		color: #fff;
 	}
 }
+
+.sureLink {
+	font-style: italic;
+	text-decoration: underline;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.probability {
+	padding-left: 1.25rem;
+	padding-right: 1.25rem;
+	color: #fff;
+
+	span {
+		font-weight: 600;
+	}
+}
