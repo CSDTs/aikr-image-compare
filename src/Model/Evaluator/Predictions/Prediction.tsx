@@ -37,17 +37,17 @@ const Prediction: React.SFC<IProps> = ({ prediction: { src, prediction, label, s
 				<p>Category probability</p>
 				<p>
 					Your model is <span>{score[0]}%</span>{" "}
-					<OverlayTrigger trigger="click" placement="right" overlay={popover}>
+					<OverlayTrigger trigger="click" rootClose placement="right" overlay={popover}>
 						<span className={styles.sureLink}>sure</span>
 					</OverlayTrigger>{" "}
 					it is a {label} meal and{" "}
 				</p>
 				<p>
 					is <span>{score[1]}%</span>{" "}
-					<OverlayTrigger trigger="click" placement="right" overlay={popover}>
+					<OverlayTrigger trigger="click" rootClose placement="right" overlay={popover}>
 						<span className={styles.sureLink}>sure</span>
 					</OverlayTrigger>{" "}
-					it is a {label === "Home Cooked" ? "Factory Made" : label} meal
+					it is a {label.includes("Home") ? "Factory Made" : label.includes("Factory") ? "Home Cooked" : label} meal
 				</p>
 			</article>
 
