@@ -186,7 +186,7 @@ class App extends React.Component {
 									{this.state.training === false && (
 										<div className={`${styles.info} mt-4 col-md-12`}>
 											<p>
-												Select some images for each of the classes: home cooked and factory made foods. Once you do
+												Select some images for both of the categories: home cooked and factory made foods. Once you do
 												that, you can start training your model!
 											</p>
 										</div>
