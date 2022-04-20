@@ -147,6 +147,36 @@ class App extends React.Component {
 		// 	console.log("currentUser: ", JSON.parse(currentUserValue));
 		// }
 		let trainingState = this.state.trainingState;
+
+		const epochPopover = (
+			<Popover id="popover-basic">
+				<Popover.Header as="h3">Epoch</Popover.Header>
+				<Popover.Body>
+					After running all the batches, we have completed one epoch. But random variation helps us to keep discovering
+					new weighting strategies (e.g. "weigh green colors high but exclude gummy bear shapes"). So more epochs mean
+					that we can increase our chances of an accurate classification. One downside is that it takes a longer time,
+					and eventually it will not be adding any accuracy at all. Another downside is that there is no guarantee that
+					accuracy will always improve. It is possible for learning to become worse over time.
+				</Popover.Body>
+			</Popover>
+		);
+
+		const batchPopover = (
+			<Popover id="popover-basic">
+				<Popover.Header as="h3">Batch</Popover.Header>
+				<Popover.Body>
+					Say you have many samples. We break those into small batches. Then we ask the neural net to make a guess about
+					what will be the most important visual features they have in common. If a human was doing it, they might weigh
+					the color green more heavily for healthy meals, or shapes associated with boxes more heavily for unhealthy
+					means. Because the neural net does not really know anything, and all the visual features are just lists of
+					parameters, it can just assign those weights randomly at first and update them as it learns. Each time a batch
+					runs, it will turn out that some parameters were more successful at making correct matches. So even though the
+					first run is random, the next will be able to make a better guess about which weights to use on each feature.
+					These accumulate with each run, in a similar way that Darwin said the most successful mutations would get to
+					reproduce in each generation.
+				</Popover.Body>
+			</Popover>
+		);
 		return (
 			<>
 				<Navigation user={currentUserValue}></Navigation>
@@ -221,27 +251,25 @@ class App extends React.Component {
 												<Accordion.Body>
 													<Form>
 														<Form.Group className="mb-3" controlId="formBasicEmail">
-															<Form.Label>Epochs:</Form.Label>
-															<OverlayTrigger
-																// trigger="click"
-																key={"right"}
-																placement={"right"}
-																overlay={
-																	<Popover id={`popover-positioned-${"right"}`}>
-																		<Popover.Header as="h3">Epochs</Popover.Header>
-																		<Popover.Body>
-																			One epoch means that each and every sample in the training dataset has been fed
-																			through the training model at least once. If your epochs are set to 50, for
-																			example, it means that the model you are training will work through the entire
-																			training dataset 50 times. Generally the larger the number, the better your model
-																			will learn to predict the data.
-																		</Popover.Body>
-																	</Popover>
-																}>
-																<Form.Label>
-																	<FontAwesomeIcon icon={faCircleQuestion} className="pe-2 ps-1" />
-																</Form.Label>
-															</OverlayTrigger>
+															<OverlayTrigger trigger="click" rootClose placement="right" overlay={batchPopover}>
+																<span>
+																	Batch: <FontAwesomeIcon icon={faCircleQuestion} className="pe-2 ps-1" />
+																</span>
+															</OverlayTrigger>{" "}
+															<Form.Control
+																type="number"
+																placeholder="eg. 32"
+																defaultValue="32"
+																onChange={this.handleBatchSizeChange.bind(this)}
+															/>
+															<Form.Text className="text-muted">The size of the set used for the training.</Form.Text>
+														</Form.Group>
+														<Form.Group className="mb-3" controlId="formBasicEmail">
+															<OverlayTrigger trigger="click" rootClose placement="right" overlay={epochPopover}>
+																<span>
+																	Epochs: <FontAwesomeIcon icon={faCircleQuestion} className="pe-2 ps-1" />
+																</span>
+															</OverlayTrigger>{" "}
 															<Form.Control
 																type="number"
 																placeholder="eg. 20"
@@ -251,36 +279,6 @@ class App extends React.Component {
 															<Form.Text className="text-muted">
 																How many times to train each sample in the set.
 															</Form.Text>
-														</Form.Group>
-
-														<Form.Group className="mb-3" controlId="formBasicEmail">
-															<Form.Label>Batch Size:</Form.Label>
-															<OverlayTrigger
-																// trigger="click"
-																key={"right"}
-																placement={"right"}
-																overlay={
-																	<Popover id={`popover-positioned-${"right"}`}>
-																		<Popover.Header as="h3">Batch Size</Popover.Header>
-																		<Popover.Body>
-																			A batch is a set of samples used in one iteration of training. For example, let's
-																			say that you have 80 images and you choose a batch size of 16. This means the data
-																			will be split into 80 / 16 = 5 batches. Once all 5 batches have been fed through
-																			the model, exactly one epoch will be complete.
-																		</Popover.Body>
-																	</Popover>
-																}>
-																<Form.Label>
-																	<FontAwesomeIcon icon={faCircleQuestion} className="pe-2 ps-1" />
-																</Form.Label>
-															</OverlayTrigger>
-															<Form.Control
-																type="number"
-																placeholder="eg. 32"
-																defaultValue="32"
-																onChange={this.handleBatchSizeChange.bind(this)}
-															/>
-															<Form.Text className="text-muted">The size of the set used for the training.</Form.Text>
 														</Form.Group>
 													</Form>
 												</Accordion.Body>
