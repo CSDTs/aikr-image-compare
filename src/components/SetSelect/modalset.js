@@ -32,7 +32,15 @@ function SelectModal(props) {
 	return (
 		<>
 			<div className="row justify-content-around">
-				<p hidden={preview.length !== 0}>{preview.length === 0 ? "Click to add images to training group" : ""}</p>
+				<p hidden={preview.length !== 0}>
+					{preview.length === 0
+						? `${
+								props.extra
+									? `Click to add images to train your group `
+									: "Select an image for validation of your model."
+						  }`
+						: ""}
+				</p>
 				<div className="col-md-12 mb-3">
 					<div className={styles.previewContainer + " row"}>{preview}</div>
 				</div>
