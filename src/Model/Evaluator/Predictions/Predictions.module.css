@@ -47,4 +47,42 @@
   font-weight: 700;
   color: #fff;
 }
+
+.sureLink {
+  font-style: italic;
+  text-decoration: underline;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.probability {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  color: #fff;
+}
+
+.probability span {
+  font-weight: 600;
+}
+
+.noMatch {
+  background-color: #fae4e3;
+  font-weight: 600;
+  color: #521511;
+  border: 1px solid #ecc9c8;
+  padding: 0.2rem;
+}
+
+.match {
+  background-color: #ddf4eb;
+  font-weight: 600;
+  color: #204834;
+  border: 1px solid #add8c6;
+  padding: 0.2rem;
+}
+
+.predictionRow {
+  max-height: 475px;
+  overflow-y: scroll;
+}
 /*# sourceMappingURL=Predictions.module.css.map */

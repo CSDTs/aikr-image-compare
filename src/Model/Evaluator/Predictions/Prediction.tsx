@@ -27,62 +27,10 @@ const popover = (
 );
 
 const Prediction: React.SFC<IProps> = ({ prediction: { src, prediction, label, score } }) => (
-	<>
-		<section className="px-2 py-2">
-			<p className="text-center">
-				Is it a <strong>{label}</strong> meal?
-			</p>
-
-			<article className={styles.probability}>
-				<p>Category probability</p>
-				<p>
-					Your model is <span>{score[0]}%</span>{" "}
-					<OverlayTrigger trigger="click" rootClose placement="right" overlay={popover}>
-						<span className={styles.sureLink}>sure</span>
-					</OverlayTrigger>{" "}
-					it is a {label} meal and{" "}
-				</p>
-				<p>
-					is <span>{score[1]}%</span>{" "}
-					<OverlayTrigger trigger="click" rootClose placement="right" overlay={popover}>
-						<span className={styles.sureLink}>sure</span>
-					</OverlayTrigger>{" "}
-					it is a {label.includes("Home") ? "Factory Made" : label.includes("Factory") ? "Home Cooked" : label} meal
-				</p>
-			</article>
-
-			<article hidden>
-				<h4>Confidence Level</h4>
-				<div className="row justify-content-between">
-					<div className="col-3 text-center">
-						<span className="text-center">Yes</span>
-					</div>
-					<div className="col-9  align-self-center">
-						<ProgressBar now={score[0]} label={score[0] + `%`} className={styles.contrastBar} />
-					</div>
-				</div>
-				<div className="row  justify-content-between">
-					<div className="col-3  text-center">
-						<span>No</span>
-					</div>
-					<div className="col-9 align-self-center">
-						<ProgressBar now={score[1]} label={score[1] + `%`} className={styles.contrastBar} />
-					</div>
-				</div>
-			</article>
-		</section>
-		<img src={src} className="w-75 d-flex justify-content-center mx-auto my-4" />
-		<ul className={styles.info}>
-			<li>
-				Prediction: <br></br>
-				{prediction}
-			</li>
-			<li className={styles.label}>
-				Label: <br></br>
-				{label}
-			</li>
-		</ul>
-	</>
+	<div className="my-2">
+		<img src={src} className="w-100 d-flex justify-content-center mx-auto " alt="" />
+		<p className={prediction === label ? styles.match : styles.noMatch}>{prediction}</p>
+	</div>
 );
 
 export default Prediction;

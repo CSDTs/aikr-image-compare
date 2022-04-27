@@ -217,9 +217,6 @@ class MLClassifier {
 				score = score.split(" ");
 
 				convertedScore = score.map((value) => (parseFloat(value.replace("-", "e-")) * 100).toFixed(2));
-				console.log("perciction");
-				console.log(score);
-				console.log(convertedScore);
 
 				// TODO: address this
 				return (predictions as tf.Tensor).as1D().argMax();

@@ -55,11 +55,11 @@ class Dropzone extends React.Component<IProps, IState> {
 	};
 
 	public handleOnClick = () => {
-		const groupALabel = document.querySelectorAll(".card .input-group input")[0];
-		const groupBLabel = document.querySelectorAll(".card .input-group input")[1];
-
-		const groupABody = document.querySelectorAll(".card .card-body")[0];
-		const groupBBody = document.querySelectorAll(".card .card-body")[1];
+		let train = this.props?.mode !== "Evaluate Images";
+		let groupALabel = document.querySelectorAll(".card .input-group p")[train ? 0 : 2];
+		let groupBLabel = document.querySelectorAll(".card .input-group p")[train ? 1 : 3];
+		let groupABody = document.querySelectorAll(".card .card-body")[train ? 0 : 2];
+		let groupBBody = document.querySelectorAll(".card .card-body")[train ? 1 : 3];
 
 		let dataURLtoFile = (dataurl: any, filename: any) => {
 			let arr = dataurl.split(","),
@@ -92,13 +92,11 @@ class Dropzone extends React.Component<IProps, IState> {
 			let groupA = groupABody.querySelector("textarea") as HTMLTextAreaElement;
 			let groupB = groupBBody.querySelector("textarea") as HTMLTextAreaElement;
 
-			if (groupA === null || groupB === null) throw Error("You must select a data set for each group");
-
 			let groupAValues = JSON.parse(groupA.value);
 			let groupBValues = JSON.parse(groupB.value);
 
 			if (groupAValues.length === 0 || groupBValues.length === 0)
-				throw Error("You must select at least one image for each group");
+				throw Error("You must select at least one image for each category");
 
 			let arr = new Array<object>();
 
@@ -107,7 +105,7 @@ class Dropzone extends React.Component<IProps, IState> {
 					arr.push({
 						src: data,
 						file: dataURLtoFile(data, "test.png"),
-						label: (groupALabel as HTMLInputElement).value,
+						label: groupALabel.textContent,
 					});
 				});
 			}
@@ -117,61 +115,13 @@ class Dropzone extends React.Component<IProps, IState> {
 					arr.push({
 						src: data,
 						file: dataURLtoFile(data, "test.png"),
-						label: (groupBLabel as HTMLInputElement).value,
+						label: groupBLabel.textContent,
 					});
 				});
 			}
 
 			return arr;
 		};
-
-		if (this.props?.mode === "Evaluate Images") {
-			const trainingLabel = document.querySelectorAll(".card .input-group input")[2];
-			const trainingBody = document.querySelectorAll(".card .card-body")[2];
-
-			const getTestUrls = async () => {
-				let groupA = trainingBody.querySelector("textarea") as HTMLTextAreaElement;
-
-				if (groupA === null) throw Error("You must select a data set for each group");
-
-				let groupAValues = JSON.parse(groupA.value);
-
-				if (groupAValues.length === 0) throw Error("You must select at least one image for each group");
-
-				let arr = new Array<object>();
-
-				for (let img of groupAValues) {
-					await getBase64FromUrl(img.src).then((data) => {
-						arr.push({
-							src: data,
-							file: dataURLtoFile(data, "test.png"),
-							label: (trainingLabel as HTMLInputElement).value,
-						});
-					});
-				}
-
-				return arr;
-			};
-
-			getTestUrls()
-				.then((urls) => {
-					let convertedImagesNeh = urls.map((val: any) => {
-						return {
-							label: val.label,
-							src: val.src,
-							file: val.file,
-						};
-					});
-					return convertedImagesNeh;
-				})
-				.catch((e) => {
-					alert(e);
-				})
-				.then((arr) => {
-					this.props.onParseObject(arr);
-				});
-			return;
-		}
 
 		getAllUrls()
 			.then((urls) => {

@@ -4,19 +4,26 @@ import Prediction, { IPrediction } from "./Prediction";
 import { Carousel } from "react-bootstrap";
 interface IProps {
 	predictions: IPrediction[];
+	onClick: (val: IPrediction) => void;
 }
 
-const Predictions: React.SFC<IProps> = ({ predictions }) => {
+const Predictions: React.FC<IProps> = ({ predictions, onClick }) => {
+	const handleOnClick = (val: IPrediction) => {
+		onClick(val);
+	};
+
 	return (
-		<>
-			<Carousel fade className={`${styles.backgroundSwap} mt-4`} interval={null}>
-				{predictions.map((prediction: IPrediction, idx: number) => (
-					<Carousel.Item>
-						<Prediction prediction={prediction} key={idx} />
-					</Carousel.Item>
-				))}
-			</Carousel>
-		</>
+		<section className={`row ${styles.predictionRow}`}>
+			{predictions.map((prediction: IPrediction, idx: number) => (
+				<div
+					className="col-md-4"
+					onClick={() => {
+						handleOnClick(prediction);
+					}}>
+					<Prediction prediction={prediction} key={idx} />
+				</div>
+			))}
+		</section>
 	);
 };
 

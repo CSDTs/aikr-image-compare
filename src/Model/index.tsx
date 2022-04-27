@@ -4,7 +4,7 @@ import Evaluator from "./Evaluator";
 import Metrics from "./Metrics";
 import { IDatum } from "./Metrics";
 import type { ImageError } from "./Metrics";
-import SetSelect from "../components/SetSelect";
+import DataSelection from "../components/DataSelection";
 
 import { IPrediction } from "./Evaluator/Predictions/Prediction";
 // import {
@@ -25,6 +25,8 @@ interface IProps {
 		training?: number;
 		evaluation?: number;
 	};
+	appValidationPool?: string[];
+	onButtonClick?: () => void;
 }
 
 interface IState {}
@@ -64,23 +66,59 @@ class Model extends React.Component<IProps, IState> {
 				label: "Evaluation",
 			},
 		];
+
+		const refreshPredictions = (
+			<button className="btn btn-primary w-100" onClick={this.props.onButtonClick} hidden={predictions.length === 0}>
+				Pick New Images
+			</button>
+		);
 		// console.log(predict);
 		return (
-			<section className="row">
-				<div className={`col-md-6 ${styles.classifier}`}>
-					<Metrics
-						labels={labels}
-						onDownload={onDownload}
-						downloading={downloading}
-						accuracy={accuracy}
-						logs={logs}
-						errors={errors}
-					/>
-
-					<SetSelect currentGroup="all"></SetSelect>
+			<>
+				<div className="row" hidden={predictions.length > 0}>
+					<div className="mb-5 col-md-10 mx-auto">
+						<p>
+							Now that you have trained your model, let’s test it. You can test just one image or several. The software
+							will keep track of the category label you predicted for each image.
+						</p>
+					</div>
 				</div>
-				<div className="col-md-6">{predict && <Evaluator predict={predict} predictions={predictions} />}</div>
-			</section>
+
+				<section className="row justify-content-center">
+					<div className={`col-md-6 ${styles.classifier}`} hidden>
+						<Metrics
+							labels={labels}
+							onDownload={onDownload}
+							downloading={downloading}
+							accuracy={accuracy}
+							logs={logs}
+							errors={errors}
+						/>
+					</div>
+					<div className="col-md-5" hidden={predictions.length > 0}>
+						<DataSelection
+							label="Home Cooked"
+							currentGroup="all"
+							dataset={this.props.appValidationPool}
+							mode="validating"
+						/>
+					</div>
+					<div className="col-md-5" hidden={predictions.length > 0}>
+						<DataSelection
+							label="Factory Made"
+							currentGroup="all"
+							dataset={this.props.appValidationPool}
+							mode="validating"
+						/>
+					</div>
+				</section>
+
+				<section className="row">
+					<div className="col-md-12">
+						{predict && <Evaluator predict={predict} predictions={predictions} button={refreshPredictions} />}
+					</div>
+				</section>
+			</>
 		);
 	}
 }

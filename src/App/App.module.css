@@ -12126,6 +12126,7 @@ nav div div.nav_collapse ul.nav_list li.nav_list__item a.nav_link {
   -ms-grid-column: 3;
   grid-area: 1 / 3;
   scroll-margin-top: 4rem;
+  padding-left: 0;
 }
 
 main {

@@ -9,7 +9,7 @@ import { ITrainResult } from "../types";
 import Model from "../Model";
 import { ImageError } from "../Model";
 import Preview from "../Preview";
-import SetSelect from "../components/SetSelect";
+// import SetSelect from "../components/SetSelect";
 // import MLClassifier from "ml-classifier";
 import MLClassifier from "../MLClassifier";
 
@@ -79,6 +79,7 @@ interface IProps {
 	onEvaluateComplete?: Function;
 	onSaveStart?: Function;
 	onSaveComplete?: Function;
+	appValidationPool?: string[];
 }
 
 class MLClassifierUI extends React.Component<IProps, IState> {
@@ -215,7 +216,7 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 			});
 
 			const train = this.props.params.train || {};
-			console.log(train);
+
 			const result: ITrainResult = await this.classifier.train({
 				...train,
 				callbacks: {
@@ -262,8 +263,19 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 			this.props.onPredictComplete(src, label, pred);
 		}
 		const prediction = `${pred}`;
-		console.log("Score");
-		console.log(score);
+
+		let currentLabels = [...new Set(this.state.labels)];
+
+		let temp = score;
+
+		let outcome = [
+			Math.max(temp[0], temp[1]),
+			prediction,
+			Math.min(temp[0], temp[1]),
+			currentLabels.indexOf(prediction) === 0 ? currentLabels[1] : currentLabels[0],
+		];
+
+		score = outcome;
 		this.setState({
 			predictions: this.state.predictions.concat({
 				src,
@@ -272,6 +284,10 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 				score,
 			}),
 		});
+	};
+
+	public onClearPredictions = () => {
+		this.setState({ predictions: [] });
 	};
 
 	public predict = async (imageFiles: IFileData[]) => {
@@ -327,6 +343,8 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 							predictions={this.state.predictions}
 							accuracy={this.state.accuracy}
 							errors={this.state.errors}
+							appValidationPool={this.props.appValidationPool}
+							onButtonClick={this.onClearPredictions}
 						/>
 					</div>
 				)}
