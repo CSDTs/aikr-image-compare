@@ -1,0 +1,56 @@
+[
+	{
+		"image": "joeslunch/factorymade/bad-10.png",
+		"dim_lighting": "no",
+		"bright_lighting": "yes",
+		"has_square_surfaces": "yes"
+	},
+	{
+		"image": "joeslunch/factorymade/bad-1.png",
+		"dim_lighting": "no",
+		"bright_lighting": "yes",
+		"has_square_surfaces": "no"
+	},
+	{
+		"image": "joeslunch/factorymade/bad-2.png",
+		"dim_lighting": "no",
+		"bright_lighting": "yes",
+		"has_square_surfaces": "yes"
+	},
+	{
+		"image": "joeslunch/factorymade/bad-3.png",
+		"dim_lighting": "yes",
+		"bright_lighting": "no",
+		"has_square_surfaces": "yes"
+	},
+	{
+		"image": "joeslunch/factorymade/bad-4.png",
+		"dim_lighting": "yes",
+		"bright_lighting": "no",
+		"has_square_surfaces": "yes"
+	},
+	{
+		"image": "joeslunch/factorymade/bad-5.png",
+		"dim_lighting": "yes",
+		"bright_lighting": "no",
+		"has_square_surfaces": "yes"
+	},
+	{
+		"image": "joeslunch/factorymade/bad-6.png",
+		"dim_lighting": "yes",
+		"bright_lighting": "no",
+		"has_square_surfaces": "yes"
+	},
+	{
+		"image": "joeslunch/factorymade/bad-7.png",
+		"dim_lighting": "no",
+		"bright_lighting": "yes",
+		"has_square_surfaces": "yes"
+	},
+	{
+		"image": "joeslunch/factorymade/bad-9.png",
+		"dim_lighting": "yes",
+		"bright_lighting": "no",
+		"has_square_surfaces": "yes"
+	}
+]

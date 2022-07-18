@@ -1,0 +1,74 @@
+.navbar__side {
+
+
+	@media (min-width: 992px) {
+		padding-top: 1.5rem;
+	}
+	ul {
+
+		.mainlink:not(.active) a,
+		.sublink:not(.active) a {
+			color: #718096 !important;
+		}
+
+		.mainlink.active a,
+		.sublink.active a {
+			color: #4096e2 !important;
+		}
+
+		.mainlink > a,
+		.sublink > a {
+			display: block;
+			text-decoration: none;
+		}
+
+		.mainlink:not(.mainlink:first-child) {
+			margin-top: 12px;
+		}
+
+		.mainlink {
+			border: 0 solid #e2e8f0;
+			color: #718096 !important;
+			font-weight: 500 !important;
+			text-align: -webkit-match-parent;
+			list-style: none;
+			line-height: 1.5 !important;
+			font-size: 0.9rem;
+			-webkit-font-smoothing: antialiased !important;
+			pointer-events: auto;
+			padding-right: 0.5rem;
+			padding-left: 0.5rem;
+		}
+
+		.sublink {
+			border: 0 solid #e2e8f0;
+			color: #718096 !important;
+			font-weight: 500 !important;
+			text-align: -webkit-match-parent;
+			list-style: none;
+			/* line-height: 2.25 !important; */
+			font-size: 0.9rem;
+			-webkit-font-smoothing: antialiased !important;
+			pointer-events: auto;
+			padding-right: 0.5rem;
+			padding-left: 1.5rem;
+			padding-top: 3.8px;
+			padding-bottom: 3.8px;
+		}
+
+		.mainlink.active,
+		.sublink.active {
+			background: #3f94df36;
+		}
+
+		li.mainlink:not(.active) a:hover,
+		li.sublink:not(.active) a:hover {
+			color: #1a202c !important;
+		}
+
+		.mainlink.disabled,
+		.sublink.disabled {
+			display: none;
+		}
+	}
+}
