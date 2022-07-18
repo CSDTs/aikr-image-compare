@@ -1,8 +1,8 @@
 import * as React from "react";
 
 import styles from "./App.module.scss";
-import MLClassifierUI from "../MLClassifierUI";
-import Search, { IImage } from "../Search";
+import MLClassifierUI from "../components/Core/MLClassifierUI";
+import Search, { IImage } from "../components/Core/Search";
 import SideNavigation from "../components/SideNavigation";
 import ProgressBar from "../components/ProgressBar";
 
@@ -13,7 +13,7 @@ import DataSelection from "../components/DataSelection";
 
 import { Accordion, Form, Button, OverlayTrigger, Popover } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import { useSearchParams } from "react-router-dom";
 import { compareSets } from "./datasets";
 
 const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
@@ -33,8 +33,32 @@ const qs: {
 		{}
 	);
 
+const embeddedParams: {
+	embedded?: string;
+	classACount?: string;
+	classBCount?: string;
+	classASet?: string;
+	classBSet?: string;
+} = (window.location.search.split("?").pop() || "")
+	.split("&")
+	.filter((p) => p)
+	.map((p) => p.split("="))
+	.reduce(
+		(obj, [key, val]) => ({
+			...obj,
+			[key]: val,
+		}),
+		{}
+	);
+
 const SHOW_HELP = qs.SHOW_HELP !== undefined ? qs.SHOW_HELP : true;
 const SHOW_DOWNLOAD = qs.SHOW_DOWNLOAD !== undefined ? qs.SHOW_DOWNLOAD : true;
+
+const embedded = embeddedParams.embedded;
+const classACount = embeddedParams.classACount;
+const classBCount = embeddedParams.classBCount;
+const classASet = embeddedParams.classASet;
+const classBSet = embeddedParams.classBSet;
 
 const splitImagesFromLabels = async (images: IImage[]) => {
 	const origData: {
@@ -158,19 +182,23 @@ class App extends React.Component<IProps> {
 			validationPool: [],
 			promptTitle: "",
 			promptBody: "",
+			embeddedPool: {},
 		};
 		Object.assign(comparisonData, compareSets[dataTy]);
 
 		return (
 			<>
-				<MainNavigation user={localStorage.getItem("currentUser")}></MainNavigation>
+				{!embedded && <MainNavigation user={localStorage.getItem("currentUser")}></MainNavigation>}
 
 				<div className={`${styles.containerBody} container`}>
-					<div className={`${styles.containerRow} row`}>
-						<div className={`col-lg-2 d-none d-lg-flex ${styles.container__sidenav}`}>
-							<SideNavigation />
-						</div>
-						<div className={`col-lg-10 ${styles.content__container}`}>
+					<div className={`${!embedded ? styles.containerRow : "justify-content-center"} row`}>
+						{!embedded && (
+							<div className={`col-lg-2 d-none d-lg-flex ${styles.container__sidenav}`}>
+								<SideNavigation />
+							</div>
+						)}
+
+						<div className={`col-lg-10 ${!embedded ? styles.content__container : ""}`}>
 							<div className="row justify-content-between">
 								<div className="col-auto">
 									<h1 className={`${styles.title}`}>{comparisonData.title} </h1>
@@ -202,6 +230,9 @@ class App extends React.Component<IProps> {
 												currentGroup="good"
 												dataset={comparisonData.groupADataset}
 												mode="training"
+												embedded={embedded}
+												count={classACount}
+												set={classASet ? comparisonData.embeddedPool[classASet] : ""}
 											/>
 										</div>
 										<div className="col-md-5">
@@ -210,6 +241,9 @@ class App extends React.Component<IProps> {
 												currentGroup="bad"
 												dataset={comparisonData.groupBDataset}
 												mode="training"
+												embedded={embedded}
+												count={classBCount}
+												set={classBSet ? comparisonData.embeddedPool[classBSet] : ""}
 											/>
 										</div>
 									</div>
@@ -239,7 +273,7 @@ class App extends React.Component<IProps> {
 							</section>
 						</div>
 
-						<Modal title={comparisonData.promptTitle} prompt={comparisonData.promptBody} />
+						{!embedded && <Modal title={comparisonData.promptTitle} prompt={comparisonData.promptBody} />}
 					</div>
 				</div>
 			</>

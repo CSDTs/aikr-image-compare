@@ -46,6 +46,80 @@ const factoryMadeDataSet = [
 	factory9,
 ];
 
+const homeCafeteria = [
+	homecooked0,
+	homecooked1,
+	homecooked2,
+	homecooked3,
+	homecooked4,
+	homecooked5,
+	homecooked6,
+	homecooked7,
+	homecooked8,
+	homecooked9,
+];
+const homeOutside = [
+	homecooked0,
+	homecooked1,
+	homecooked2,
+	homecooked3,
+	homecooked4,
+	homecooked5,
+	homecooked6,
+	homecooked7,
+	homecooked8,
+	homecooked9,
+];
+const homeHome = [
+	homecooked0,
+	homecooked1,
+	homecooked2,
+	homecooked3,
+	homecooked4,
+	homecooked5,
+	homecooked6,
+	homecooked7,
+	homecooked8,
+	homecooked9,
+];
+
+const factoryCafeteria = [
+	factory0,
+	factory1,
+	factory2,
+	factory3,
+	factory4,
+	factory5,
+	factory6,
+	factory7,
+	factory8,
+	factory9,
+];
+const factoryOutside = [
+	factory0,
+	factory1,
+	factory2,
+	factory3,
+	factory4,
+	factory5,
+	factory6,
+	factory7,
+	factory8,
+	factory9,
+];
+const factoryHome = [
+	factory0,
+	factory1,
+	factory2,
+	factory3,
+	factory4,
+	factory5,
+	factory6,
+	factory7,
+	factory8,
+	factory9,
+];
+
 // const lunchValidationSet = [...homeCookedDataSet, ...factoryMadeDataSet];
 
 const compareSets = {
@@ -62,6 +136,14 @@ const compareSets = {
 			"first step is to train the AI on the two classes of images: authentic hand-made versus factory-produced" +
 			"imitations.",
 		validationPool: [...homeCookedDataSet, ...factoryMadeDataSet],
+		embeddedPool: {
+			homeCafeteria: homeCafeteria,
+			homeOutside: homeOutside,
+			homeHome: homeHome,
+			factoryCafeteria: factoryCafeteria,
+			factoryOutside: factoryOutside,
+			factoryHome: factoryHome,
+		},
 		homepagePrompt:
 			"Select some images for both of the categories: home cooked and factory made foods. Once you do that, you can start training your model!",
 	},

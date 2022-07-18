@@ -68,7 +68,17 @@ class PromptBody extends React.Component {
 					currentSet={this.props.imageList}
 					multiple
 				/>
-				<textarea rows="4" cols="100" value={this.state.images && JSON.stringify(this.state.images)} disabled hidden />
+				{this.props.embedded ? (
+					<p>Yay</p>
+				) : (
+					<textarea
+						rows="4"
+						cols="100"
+						value={this.state.images && JSON.stringify(this.state.images)}
+						disabled
+						hidden
+					/>
+				)}
 			</div>
 		);
 	}
