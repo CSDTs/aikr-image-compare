@@ -1,82 +1,28 @@
 import * as React from "react";
 
-import styles from "./App.module.scss";
 import MLClassifierUI from "../../components/core/MLClassifierUI";
-import Search, { IImage } from "../../components/core/Search";
+import { IImage } from "../../components/core/Search";
 import SideNavigation from "../../components/ui/SideNavigation";
 import ProgressBar from "../../components/ui/ProgressBar";
-
 import Modal from "../../components/ui/ModalPrompt";
 import AdvancedAccordion from "../../components/ui/AdvancedOptions";
 import MainNavigation from "../../components/ui/MainNavigation";
-import DataSelection from "../../components/core/DataSelection";
-
-import { Accordion, Form, Button, OverlayTrigger, Popover } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import { useSearchParams } from "react-router-dom";
-import { compareSets } from "./datasets";
-
 import ImageSelection from "../../components/ml/ImageSelection";
 
 import { imageCompareDataSets } from "../../data/";
-const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
+import { qs, querySearch } from "../../utils/getSearchParams";
 
-const qs: {
-	SHOW_HELP?: string;
-	SHOW_DOWNLOAD?: string;
-} = (window.location.search.split("?").pop() || "")
-	.split("&")
-	.filter((p) => p)
-	.map((p) => p.split("="))
-	.reduce(
-		(obj, [key, val]) => ({
-			...obj,
-			[key]: val === "1" || val === "true" ? true : false,
-		}),
-		{}
-	);
+import styles from "./App.module.scss";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-const embeddedParams: {
-	embedded?: string;
-	classACount?: string;
-	classBCount?: string;
-	classASet?: string;
-	classBSet?: string;
-} = (window.location.search.split("?").pop() || "")
-	.split("&")
-	.filter((p) => p)
-	.map((p) => p.split("="))
-	.reduce(
-		(obj, [key, val]) => ({
-			...obj,
-			[key]: val,
-		}),
-		{}
-	);
-
-const urlParams: {
-	dataset?: string;
-} = (window.location.search.split("?").pop() || "")
-	.split("&")
-	.filter((p) => p)
-	.map((p) => p.split("="))
-	.reduce(
-		(obj, [key, val]) => ({
-			...obj,
-			[key]: val,
-		}),
-		{}
-	);
-
+const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/"; // Heroku app to bypass CORS
 const SHOW_DOWNLOAD = qs.SHOW_DOWNLOAD !== undefined ? qs.SHOW_DOWNLOAD : true;
 
-const embedded = embeddedParams.embedded;
-const classACount = embeddedParams.classACount;
-const classBCount = embeddedParams.classBCount;
-const classASet = embeddedParams.classASet;
-const classBSet = embeddedParams.classBSet;
+// Based on url param, for workbooks
+const embedded = querySearch.embedded;
 
-const dataset = urlParams.dataset || "lunch";
+// Based on url param, switch to existing dataset or default to Joes Lunch
+const dataset = querySearch.dataset || "lunch";
 
 const splitImagesFromLabels = async (images: IImage[]) => {
 	const origData: {
@@ -90,7 +36,6 @@ const splitImagesFromLabels = async (images: IImage[]) => {
 	return images.reduce(
 		(data, image: IImage) => ({
 			images: data.images.concat(`${CORS_BYPASS}${image.src}`),
-			// images: data.images.concat(`${image.src}`),
 			labels: data.labels.concat(image.label),
 		}),
 		origData
@@ -168,7 +113,7 @@ class App extends React.Component<IProps> {
 		}
 	};
 
-	// Handles user input for epoch and batch size
+	// Given a field and value, sets state (useful for epoch and batch size)
 	private handleFieldChange(field: string, value: number) {
 		this.setState({ [field]: value });
 	}
@@ -189,6 +134,8 @@ class App extends React.Component<IProps> {
 			promptTitle: "",
 			promptBody: "",
 			embeddedPool: {},
+			corporateScoreA: [1, 1, 1],
+			corporateScoreB: [1, 1, 1],
 		};
 		Object.assign(comparisonData, imageCompareDataSets[dataType]);
 
@@ -207,7 +154,7 @@ class App extends React.Component<IProps> {
 						<div className={`col-lg-10 ${!embedded ? styles.content__container : ""}`}>
 							<div className="row justify-content-between">
 								<div className="col-auto">
-									<h1 className={`${styles.title}`}>{comparisonData.title} </h1>
+									<h1 className={`${styles.title}`}>{comparisonData.title}</h1>
 								</div>
 
 								{this.state.trainingState === "evaluation" && (
@@ -235,7 +182,8 @@ class App extends React.Component<IProps> {
 												label={comparisonData.groupALabel}
 												set={comparisonData.groupADataset}
 												selectCallback={console.log}
-												mode="training"
+												mode="Training"
+												score={comparisonData.corporateScoreA}
 											/>
 										</div>
 
@@ -244,7 +192,8 @@ class App extends React.Component<IProps> {
 												label={comparisonData.groupBLabel}
 												set={comparisonData.groupBDataset}
 												selectCallback={console.log}
-												mode="training"
+												mode="Training"
+												score={comparisonData.corporateScoreB}
 											/>
 										</div>
 									</div>
@@ -283,3 +232,5 @@ class App extends React.Component<IProps> {
 }
 
 export default App;
+
+//TODO Fix batch and epoch

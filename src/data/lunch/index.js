@@ -16,4 +16,6 @@ export const lunchSet = {
 	validationPool: mealVaidation,
 	homepagePrompt:
 		"Select some images for both of the categories: home cooked and factory made foods. Once you do that, you can start training your model!",
+	corporateScoreA: [4, 4, 4],
+	corporateScoreB: [4, 4, 4],
 };

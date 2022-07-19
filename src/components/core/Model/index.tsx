@@ -4,7 +4,7 @@ import Evaluator from "./Evaluator";
 import Metrics from "./Metrics";
 import { IDatum } from "./Metrics";
 import type { ImageError } from "./Metrics";
-import DataSelection from "../DataSelection";
+
 import ImageSelection from "../../ml/ImageSelection";
 
 import { IPrediction } from "./Evaluator/Predictions/Prediction";
@@ -125,8 +125,9 @@ class Model extends React.Component<IProps, IState> {
 						<ImageSelection
 							label={imageCompareDataSets[dataType].groupALabel}
 							set={imageCompareDataSets[dataType].validationPool}
-							mode="validating"
+							mode="Evaluation"
 							selectCallback={console.log}
+							score={imageCompareDataSets[dataType].corporateScoreB}
 							// mode="training"
 						/>
 					</div>
@@ -134,8 +135,9 @@ class Model extends React.Component<IProps, IState> {
 						<ImageSelection
 							label={imageCompareDataSets[dataType].groupBLabel}
 							set={imageCompareDataSets[dataType].validationPool}
-							mode="validating"
+							mode="Evaluation"
 							selectCallback={console.log}
+							score={imageCompareDataSets[dataType].corporateScoreB}
 							// mode="training"
 						/>
 						{/* <DataSelection

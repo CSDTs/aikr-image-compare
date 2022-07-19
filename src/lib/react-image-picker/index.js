@@ -14,8 +14,6 @@ class ImagePicker extends Component {
 		};
 		this.handleImageClick = this.handleImageClick.bind(this);
 		this.renderImage = this.renderImage.bind(this);
-
-		console.log(this.state.selected);
 	}
 
 	handleImageClick(image) {

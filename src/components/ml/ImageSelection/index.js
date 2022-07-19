@@ -1,7 +1,7 @@
-import React, { Component, useState } from "react";
+import React, { Component, useEffect, useState } from "react";
 import ImagePicker from "../../../lib/react-image-picker/";
 
-import { Button, Modal, Image, Stack, Row, Col, Container, Accordion, Card } from "react-bootstrap";
+import { Button, Modal, Image, Stack, Row, Col, Container, Accordion, Card, Badge } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
 
 import SelectionReadOut from "../SelectionReadOut.js";
@@ -78,7 +78,7 @@ const stageSrcData = (images) => {
 	});
 };
 
-export default function ImageSelection({ set, label, mode, selectCallback }) {
+export default function ImageSelection({ set, label, mode, score, selectCallback }) {
 	const [picked, setPicked] = useState([]);
 	const [dim, setDim] = useState(0);
 	const [bright, setBright] = useState(0);
@@ -90,13 +90,19 @@ export default function ImageSelection({ set, label, mode, selectCallback }) {
 			<div>
 				<Card>
 					<Card.Body>
-						<Card.Title>{label}</Card.Title>
+						<div className="d-inline-flex justify-content-between w-100">
+							<Card.Title>{label}</Card.Title>
+							<Badge bg="secondary" style={{ height: "max-content" }}>
+								{mode}
+							</Badge>
+						</div>
+
 						<Card.Subtitle className="mb-2 text-muted">
 							{picked.length == 0 && `Click to add images to ${label}`}
-							{picked.length != 0 && `Training Model`}
+							{picked.length != 0 && `Click to reselect your images`}
 						</Card.Subtitle>
 						{picked && <ImagePickedView images={picked} setDim={setDim} setBright={setBright} setSquare={setSquare} />}
-						{picked.length == 0 && <p>Click to add images to {label}</p>}
+						{/* {picked.length == 0 && <p>Click to add images to {label}</p>} */}
 						<Row>
 							<Col sm={6}>
 								{" "}
@@ -115,7 +121,7 @@ export default function ImageSelection({ set, label, mode, selectCallback }) {
 								</Button>
 							</Col>
 						</Row>
-						<textarea className="w-100 mt-2" disabled value={JSON.stringify(stageSrcData(picked))}></textarea>
+						<textarea className="w-100 mt-2" disabled hidden value={JSON.stringify(stageSrcData(picked))}></textarea>
 					</Card.Body>
 				</Card>
 				<>
@@ -125,7 +131,7 @@ export default function ImageSelection({ set, label, mode, selectCallback }) {
 								<strong>Data Breakdown</strong>
 							</Accordion.Header>
 							<Accordion.Body>
-								<SelectionReadOut dim={dim} bright={bright} square={square} />
+								<SelectionReadOut dim={dim} bright={bright} square={square} opponent={score} />
 							</Accordion.Body>
 						</Accordion.Item>
 					</Accordion>
