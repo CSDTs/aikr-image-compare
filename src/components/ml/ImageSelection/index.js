@@ -71,14 +71,20 @@ const overrideSelected = (set) => {
 	});
 };
 
-export default function ImageSelection({ set, label, selectCallback }) {
+// TODO remove once image selection state is rewritten
+const stageSrcData = (images) => {
+	return images.map((image) => {
+		return { src: `${window.location.origin}${image.data.src}`, value: image.data.value };
+	});
+};
+
+export default function ImageSelection({ set, label, mode, selectCallback }) {
 	const [picked, setPicked] = useState([]);
 	const [dim, setDim] = useState(0);
 	const [bright, setBright] = useState(0);
 	const [square, setSquare] = useState(0);
 	const [modalShow, setModalShow] = useState(false);
 
-	console.log(overrideSelected(set));
 	return (
 		<>
 			<div>
@@ -109,6 +115,7 @@ export default function ImageSelection({ set, label, selectCallback }) {
 								</Button>
 							</Col>
 						</Row>
+						<textarea className="w-100 mt-2" disabled value={JSON.stringify(stageSrcData(picked))}></textarea>
 					</Card.Body>
 				</Card>
 				<>

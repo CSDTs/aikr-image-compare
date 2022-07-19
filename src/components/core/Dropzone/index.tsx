@@ -56,8 +56,8 @@ class Dropzone extends React.Component<IProps, IState> {
 
 	public handleOnClick = () => {
 		let train = this.props?.mode !== "Evaluate Images";
-		let groupALabel = document.querySelectorAll(".card .input-group p")[train ? 0 : 2];
-		let groupBLabel = document.querySelectorAll(".card .input-group p")[train ? 1 : 3];
+		let groupALabel = document.querySelectorAll(".card .card-title")[train ? 0 : 2];
+		let groupBLabel = document.querySelectorAll(".card .card-title")[train ? 1 : 3];
 		let groupABody = document.querySelectorAll(".card .card-body")[train ? 0 : 2];
 		let groupBBody = document.querySelectorAll(".card .card-body")[train ? 1 : 3];
 
@@ -91,7 +91,7 @@ class Dropzone extends React.Component<IProps, IState> {
 		const getAllUrls = async () => {
 			let groupA = groupABody.querySelector("textarea") as HTMLTextAreaElement;
 			let groupB = groupBBody.querySelector("textarea") as HTMLTextAreaElement;
-
+			console.log("check");
 			if ((groupA.value === "" || groupB.value === "") && train)
 				throw Error("You must select at least one image for each category");
 
@@ -112,30 +112,42 @@ class Dropzone extends React.Component<IProps, IState> {
 
 			let arr = new Array<object>();
 
-			if (groupAValues)
-				for (let img of groupAValues) {
-					await getBase64FromUrl(img.src).then((data) => {
-						arr.push({
-							src: data,
-							file: dataURLtoFile(data, "test.png"),
-							label: groupALabel.textContent,
-						});
+			if (groupAValues) console.log("groupAValues");
+			for (let img of groupAValues) {
+				await getBase64FromUrl(img.src).then((data) => {
+					arr.push({
+						src: data,
+						file: dataURLtoFile(data, "test.png"),
+						label: groupALabel.textContent,
 					});
-				}
-			if (groupBValues)
-				for (let img of groupBValues) {
-					await getBase64FromUrl(img.src).then((data) => {
-						arr.push({
-							src: data,
-							file: dataURLtoFile(data, "test.png"),
-							label: groupBLabel.textContent,
-						});
+
+					console.log({
+						src: data,
+						file: dataURLtoFile(data, "test.png"),
+						label: groupALabel.textContent,
 					});
-				}
+				});
+			}
+			if (groupBValues) console.log("b");
+			for (let img of groupBValues) {
+				await getBase64FromUrl(img.src).then((data) => {
+					arr.push({
+						src: data,
+						file: dataURLtoFile(data, "test.png"),
+						label: groupBLabel.textContent,
+					});
+
+					console.log({
+						src: data,
+						file: dataURLtoFile(data, "test.png"),
+						label: groupBLabel.textContent,
+					});
+				});
+			}
 
 			return arr;
 		};
-
+		console.log("enter url");
 		getAllUrls()
 			.then((urls) => {
 				let convertedImagesNeh = urls.map((val: any) => {

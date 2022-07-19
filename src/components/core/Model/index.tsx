@@ -5,8 +5,12 @@ import Metrics from "./Metrics";
 import { IDatum } from "./Metrics";
 import type { ImageError } from "./Metrics";
 import DataSelection from "../DataSelection";
+import ImageSelection from "../../ml/ImageSelection";
 
 import { IPrediction } from "./Evaluator/Predictions/Prediction";
+
+import { imageCompareDataSets } from "../../../data/";
+
 // import {
 //   IImageData,
 // } from '../utils/getFilesAsImages';
@@ -40,9 +44,24 @@ const getEvaluation = (predictions: any[]) => {
 
 	return null;
 };
+const urlParams: {
+	dataset?: string;
+} = (window.location.search.split("?").pop() || "")
+	.split("&")
+	.filter((p) => p)
+	.map((p) => p.split("="))
+	.reduce(
+		(obj, [key, val]) => ({
+			...obj,
+			[key]: val,
+		}),
+		{}
+	);
 
+const dataset = urlParams.dataset || "lunch";
 class Model extends React.Component<IProps, IState> {
 	render() {
+		const dataType = dataset in imageCompareDataSets ? dataset : "lunch";
 		const {
 			labels,
 			onDownload,
@@ -96,20 +115,35 @@ class Model extends React.Component<IProps, IState> {
 						/>
 					</div>
 					<div className="col-md-5" hidden={predictions.length > 0}>
-						<DataSelection
+						{/* <DataSelection
 							label="Home Cooked"
 							currentGroup="all"
 							dataset={this.props.appValidationPool}
 							mode="validating"
+						/> */}
+
+						<ImageSelection
+							label={imageCompareDataSets[dataType].groupALabel}
+							set={imageCompareDataSets[dataType].validationPool}
+							mode="validating"
+							selectCallback={console.log}
+							// mode="training"
 						/>
 					</div>
 					<div className="col-md-5" hidden={predictions.length > 0}>
-						<DataSelection
+						<ImageSelection
+							label={imageCompareDataSets[dataType].groupBLabel}
+							set={imageCompareDataSets[dataType].validationPool}
+							mode="validating"
+							selectCallback={console.log}
+							// mode="training"
+						/>
+						{/* <DataSelection
 							label="Factory Made"
 							currentGroup="all"
 							dataset={this.props.appValidationPool}
 							mode="validating"
-						/>
+						/> */}
 					</div>
 				</section>
 

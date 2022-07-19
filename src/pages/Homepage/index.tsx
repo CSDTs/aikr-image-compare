@@ -18,7 +18,7 @@ import { compareSets } from "./datasets";
 
 import ImageSelection from "../../components/ml/ImageSelection";
 
-import { lunchSet } from "../../data/lunch";
+import { imageCompareDataSets } from "../../data/";
 const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
 
 const qs: {
@@ -54,6 +54,20 @@ const embeddedParams: {
 		{}
 	);
 
+const urlParams: {
+	dataset?: string;
+} = (window.location.search.split("?").pop() || "")
+	.split("&")
+	.filter((p) => p)
+	.map((p) => p.split("="))
+	.reduce(
+		(obj, [key, val]) => ({
+			...obj,
+			[key]: val,
+		}),
+		{}
+	);
+
 const SHOW_DOWNLOAD = qs.SHOW_DOWNLOAD !== undefined ? qs.SHOW_DOWNLOAD : true;
 
 const embedded = embeddedParams.embedded;
@@ -61,6 +75,8 @@ const classACount = embeddedParams.classACount;
 const classBCount = embeddedParams.classBCount;
 const classASet = embeddedParams.classASet;
 const classBSet = embeddedParams.classBSet;
+
+const dataset = urlParams.dataset || "lunch";
 
 const splitImagesFromLabels = async (images: IImage[]) => {
 	const origData: {
@@ -160,7 +176,7 @@ class App extends React.Component<IProps> {
 	public render() {
 		let trainingState = this.state.trainingState;
 
-		const dataTy = this.props?.dataType || "lunch";
+		const dataType = dataset in imageCompareDataSets ? dataset : "lunch";
 
 		let comparisonData = {
 			title: "Classification with AI",
@@ -174,7 +190,7 @@ class App extends React.Component<IProps> {
 			promptBody: "",
 			embeddedPool: {},
 		};
-		Object.assign(comparisonData, compareSets[dataTy]);
+		Object.assign(comparisonData, imageCompareDataSets[dataType]);
 
 		return (
 			<>
@@ -215,31 +231,20 @@ class App extends React.Component<IProps> {
 
 									<div className="row mt-4 justify-content-center" hidden={this.state.training === true}>
 										<div className="col-md-5">
-											<DataSelection
+											<ImageSelection
 												label={comparisonData.groupALabel}
-												currentGroup="good"
-												dataset={comparisonData.groupADataset}
+												set={comparisonData.groupADataset}
+												selectCallback={console.log}
 												mode="training"
-												embedded={embedded}
-												count={classACount}
-												set={classASet ? comparisonData.embeddedPool[classASet] : ""}
 											/>
 										</div>
-										{/* <ImageSelection
-												label={lunchSet.groupALabel}
-												set={lunchSet.groupADataset}
-												selectCallback={console.log}
-											/> */}
 
 										<div className="col-md-5">
-											<DataSelection
+											<ImageSelection
 												label={comparisonData.groupBLabel}
-												currentGroup="bad"
-												dataset={comparisonData.groupBDataset}
+												set={comparisonData.groupBDataset}
+												selectCallback={console.log}
 												mode="training"
-												embedded={embedded}
-												count={classBCount}
-												set={classBSet ? comparisonData.embeddedPool[classBSet] : ""}
 											/>
 										</div>
 									</div>

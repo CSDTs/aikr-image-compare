@@ -1,6 +1,6 @@
 import homeCookedDataSet from "./realmeals.json";
-import factoryMadeDataSet from "./realmeals.json";
-
+import factoryMadeDataSet from "./fakemeals.json";
+import mealVaidation from "./mealvalidation.json";
 export const lunchSet = {
 	groupALabel: "Home Cooked",
 	groupADataset: homeCookedDataSet,
@@ -13,7 +13,7 @@ export const lunchSet = {
 		"Your cell phone app will be used by students to help them buy only Joe's delicious hand-made lunches. So your" +
 		"first step is to train the AI on the two classes of images: authentic hand-made versus factory-produced" +
 		"imitations.",
-	// validationPool: [...homeCookedDataSet, ...factoryMadeDataSet],
+	validationPool: mealVaidation,
 	homepagePrompt:
 		"Select some images for both of the categories: home cooked and factory made foods. Once you do that, you can start training your model!",
 };
