@@ -45,9 +45,19 @@ function MainNavigation(props) {
 		<Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" fixed="top">
 			<Container>
 				<Navbar.Brand href="/">
-					<img src={"/nsf.gif"} width="40" height="40" alt="" />
+					<img
+						src={(process.env.NODE_ENV === "production" ? "/static/website/www/img/nav" : "") + "/nsf.gif"}
+						width="40"
+						height="40"
+						alt=""
+					/>
 
-					<img src={"/logo.svg"} width="100" height="40" alt="" />
+					<img
+						src={(process.env.NODE_ENV === "production" ? "/static/website/www/img/nav" : "") + "/logo.svg"}
+						width="100"
+						height="40"
+						alt=""
+					/>
 				</Navbar.Brand>
 
 				<Navbar.Toggle aria-controls="responsive-navbar-nav" />

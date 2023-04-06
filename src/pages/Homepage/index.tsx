@@ -1,21 +1,17 @@
-import * as React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import MLClassifierUI from "../../components/core/MLClassifierUI";
-import { IImage } from "../../components/core/Search";
-import SideNavigation from "../../components/ui/SideNavigation";
-import ProgressBar from "../../components/ui/ProgressBar";
-import Modal from "../../components/ui/ModalPrompt";
-import AdvancedAccordion from "../../components/ui/AdvancedOptions";
-import MainNavigation from "../../components/ui/MainNavigation";
-import ImageSelection from "../../components/ml/ImageSelection";
+import ImageSelection from "../../components/core/ImageSelection";
+
+import { MainNavigation, ModalPrompt, ProgressBar, SideNavigation } from "../../components/ui";
+import { useDataStore } from "../../store";
 
 import { imageCompareDataSets } from "../../data/";
 import { qs, querySearch } from "../../utils/getSearchParams";
 
-import styles from "./App.module.scss";
 import "bootstrap/dist/css/bootstrap.min.css";
+import ClassifierCore from "../../components/core/ClassifierCore/ClassifierCore";
 
-const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/"; // Heroku app to bypass CORS
+import styles from "./App.module.scss";
 const SHOW_DOWNLOAD = qs.SHOW_DOWNLOAD !== undefined ? qs.SHOW_DOWNLOAD : true;
 
 // Based on url param, for workbooks
@@ -24,142 +20,63 @@ const embedded = querySearch.embedded;
 // Based on url param, switch to existing dataset or default to Joes Lunch
 const dataset = querySearch.dataset || "lunch";
 
-const splitImagesFromLabels = async (images: IImage[]) => {
-	const origData: {
-		images: string[];
-		labels: string[];
-	} = {
-		images: [],
-		labels: [],
-	};
-
-	return images.reduce(
-		(data, image: IImage) => ({
-			images: data.images.concat(`${CORS_BYPASS}${image.src}`),
-			labels: data.labels.concat(image.label),
-		}),
-		origData
-	);
-};
-
-interface IState {
-	training: boolean;
-	evalImages?: IImage[];
-	evaluation: boolean;
-	trainingState: string;
-	epochs: number;
-	batchSize: number;
-}
-
 interface IProps {
 	dataType?: string;
 }
-class App extends React.Component<IProps> {
-	public state: IState = {
-		training: false,
-		evalImages: undefined,
-		evaluation: false,
-		trainingState: "selection",
-		epochs: 20,
-		batchSize: 32,
+const App: React.FC<IProps> = () => {
+	const [training, setTraining] = useState<boolean>(false);
+
+	const [evaluation, setEvaluation] = useState<boolean>(false);
+	const [trainingState, setTrainingState] = useState<string>("selection");
+	const [epochs, setEpochs] = useState<number>(20);
+	const [batchSize, setBatchSize] = useState<number>(32);
+	const setData = useDataStore((state) => state.setData);
+	const data = useDataStore((state) => state.data);
+
+	useEffect(() => {
+		setData(dataset in imageCompareDataSets ? imageCompareDataSets[dataset] : imageCompareDataSets["lunch"]);
+	}, [setData]);
+
+	const classifierRef = useRef<any>(null);
+
+	const getMLClassifier = (classifier: any) => {
+		classifierRef.current = classifier;
 	};
 
-	private classifier: any;
-
-	public getMLClassifier = (classifier: any) => {
-		this.classifier = classifier;
+	const restartTraining = () => {
+		setTraining(false);
+		setEvaluation(false);
+		setTrainingState("selection");
 	};
 
-	public restartTraining = () => {
-		this.setState({
-			training: false,
-			evaluation: false,
-			trainingState: "selection",
-		});
+	const onBeginTraining = () => {
+		setTraining(true);
+		setTrainingState("training");
 	};
 
-	public onBeginTraining = () => {
-		this.setState({
-			training: true,
-			trainingState: "training",
-		});
+	const onTrainComplete = async () => {
+		setEvaluation(true);
+		setTrainingState("evaluation");
 	};
 
-	public train = async (trainImages: IImage[], evalImages?: IImage[]) => {
-		this.onBeginTraining();
-		const { images, labels } = await splitImagesFromLabels(trainImages);
-
-		this.setState({
-			evalImages,
-		});
-
-		await this.classifier.addData(images, labels, "train");
-	};
-
-	public onTrainComplete = async () => {
-		this.setState({
-			evaluation: true,
-			trainingState: "evaluation",
-		});
-		if (this.state.evalImages && this.state.evalImages.length) {
-			const { images, labels } = await splitImagesFromLabels(this.state.evalImages);
-
-			for (let i = 0; i < images.length; i++) {
-				const src = images[i];
-				const label = labels[i];
-
-				this.classifier.predict(src, label);
-			}
-		}
-	};
-
-	// Given a field and value, sets state (useful for epoch and batch size)
-	private handleFieldChange(field: string, value: number) {
-		this.setState({ [field]: value });
-	}
-
-	public render() {
-		let trainingState = this.state.trainingState;
-
-		const dataType = dataset in imageCompareDataSets ? dataset : "lunch";
-
-		let comparisonData = {
-			title: "Classification with AI",
-			homepagePrompt: "",
-			groupALabel: "A",
-			groupADataset: [],
-			groupBLabel: "B",
-			groupBDataset: [],
-			validationPool: [],
-			promptTitle: "",
-			promptBody: "",
-			embeddedPool: {},
-			corporateScoreA: [1, 1, 1],
-			corporateScoreB: [1, 1, 1],
-		};
-		Object.assign(comparisonData, imageCompareDataSets[dataType]);
-
+	if (data?.header !== null)
 		return (
 			<>
 				{!embedded && <MainNavigation user={localStorage.getItem("currentUser")}></MainNavigation>}
 
 				<div className={`${styles.containerBody} container`}>
 					<div className={`${!embedded ? styles.containerRow : "justify-content-center"} row`}>
-						{!embedded && (
-							<div className={`col-lg-2 d-none d-lg-flex ${styles.container__sidenav}`}>
-								<SideNavigation />
-							</div>
-						)}
+						{!embedded && <SideNavigation />}
 
 						<div className={`col-lg-10 ${!embedded ? styles.content__container : ""}`}>
 							<div className="row justify-content-between">
 								<div className="col-auto">
-									<h1 className={`${styles.title}`}>{comparisonData.title}</h1>
+									<h1 className={`${styles.title}`}>{data["header"]}</h1>
 								</div>
 
-								{this.state.trainingState === "evaluation" && (
+								{trainingState === "evaluation" && (
 									<div className="col-auto align-self-center">
-										<button className="btn btn-secondary" onClick={this.restartTraining}>
+										<button className="btn btn-secondary" onClick={restartTraining}>
 											Retrain Model
 										</button>
 									</div>
@@ -168,69 +85,51 @@ class App extends React.Component<IProps> {
 
 							<section className="row">
 								<div className="col-md-12">
-									<ProgressBar current={this.state.training === false ? 0 : this.state.evaluation === true ? 2 : 1} />
+									<ProgressBar current={training === false ? 0 : evaluation === true ? 2 : 1} />
 
-									{this.state.training === false && (
+									{training === false && (
 										<div className={`${styles.info} my-5 col-md-10 mx-auto`}>
-											<p className="mx-auto">{comparisonData.homepagePrompt}</p>
+											<p className="mx-auto">{data["homepage_prompt"]}</p>
 										</div>
 									)}
-
-									<div className="row mt-4 justify-content-center" hidden={this.state.training === true}>
+									<div className="row mt-4 justify-content-center" hidden={training === true}>
 										<div className="col-md-5">
-											<ImageSelection
-												label={comparisonData.groupALabel}
-												set={comparisonData.groupADataset}
-												selectCallback={console.log}
-												mode="Training"
-												score={comparisonData.corporateScoreA}
-											/>
+											<ImageSelection set={"group_a"} mode="Training" />
 										</div>
 
 										<div className="col-md-5">
-											<ImageSelection
-												label={comparisonData.groupBLabel}
-												set={comparisonData.groupBDataset}
-												selectCallback={console.log}
-												mode="Training"
-												score={comparisonData.corporateScoreB}
-											/>
+											<ImageSelection set={"group_b"} mode="Training" />
 										</div>
 									</div>
 								</div>
 
 								<div className="col-md-12 align-self-center mx-auto mt-5">
-									<MLClassifierUI
-										getMLClassifier={this.getMLClassifier}
-										onAddDataStart={this.onBeginTraining}
-										onTrainComplete={this.onTrainComplete}
+									<ClassifierCore
+										getMLClassifier={getMLClassifier}
+										onAddDataStart={onBeginTraining}
+										onTrainComplete={onTrainComplete}
 										showDownload={!SHOW_DOWNLOAD}
 										trainingState={trainingState}
 										params={{
 											train: {
-												epochs: this.state.epochs,
+												epochs,
 											},
 											evaluate: {
-												batchSize: this.state.batchSize,
+												batchSize,
 											},
 											save: {},
 										}}
-										appValidationPool={comparisonData.validationPool}
 									/>
-
-									{this.state.training === false && <AdvancedAccordion onChange={this.handleFieldChange.bind(this)} />}
 								</div>
 							</section>
 						</div>
 
-						{!embedded && <Modal title={comparisonData.promptTitle} prompt={comparisonData.promptBody} />}
+						<ModalPrompt />
 					</div>
 				</div>
 			</>
 		);
-	}
-}
+	else return <p>Loading..</p>;
+};
 
 export default App;
-
-//TODO Fix batch and epoch

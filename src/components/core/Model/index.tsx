@@ -1,19 +1,11 @@
-import * as React from "react";
+import React, { FC, useCallback } from "react";
+import { useClassifierStore } from "../../../store";
+import { IPrediction, ImageError } from "../../../types";
+import Evaluator from "../Evaluator";
+import ImageSelection from "../ImageSelection";
+
+import Metrics, { IDatum } from "../Metrics";
 import styles from "./Model.module.scss";
-import Evaluator from "./Evaluator";
-import Metrics from "./Metrics";
-import { IDatum } from "./Metrics";
-import type { ImageError } from "./Metrics";
-
-import ImageSelection from "../../ml/ImageSelection";
-
-import { IPrediction } from "./Evaluator/Predictions/Prediction";
-
-import { imageCompareDataSets } from "../../../data/";
-
-// import {
-//   IImageData,
-// } from '../utils/getFilesAsImages';
 
 interface IProps {
 	labels: string[];
@@ -29,11 +21,9 @@ interface IProps {
 		training?: number;
 		evaluation?: number;
 	};
-	appValidationPool?: string[];
+
 	onButtonClick?: () => void;
 }
-
-interface IState {}
 
 const getEvaluation = (predictions: any[]) => {
 	if (predictions.length > 0) {
@@ -41,124 +31,59 @@ const getEvaluation = (predictions: any[]) => {
 			predictions.reduce((sum, { prediction, label }) => sum + (prediction === label ? 1 : 0), 0) / predictions.length
 		);
 	}
-
 	return null;
 };
-const urlParams: {
-	dataset?: string;
-} = (window.location.search.split("?").pop() || "")
-	.split("&")
-	.filter((p) => p)
-	.map((p) => p.split("="))
-	.reduce(
-		(obj, [key, val]) => ({
-			...obj,
-			[key]: val,
-		}),
-		{}
-	);
 
-const dataset = urlParams.dataset || "lunch";
-class Model extends React.Component<IProps, IState> {
-	render() {
-		const dataType = dataset in imageCompareDataSets ? dataset : "lunch";
-		const {
-			labels,
-			onDownload,
-			downloading,
-			predict,
-			predictions,
-			logs,
-			accuracy: { training },
-			errors,
-		} = this.props;
+const Model: FC<IProps> = ({ labels, onDownload, downloading, predict, logs, accuracy: { training }, errors }) => {
+	const predictions = useClassifierStore((state) => state.predictions);
+	const evaluation = getEvaluation(predictions);
 
-		const evaluation = getEvaluation(predictions);
+	const accuracyData: IDatum[] = [
+		{
+			data: training ? `${Math.round(training * 100)}%` : "--",
+			label: "Training",
+		},
+		{
+			data: evaluation ? `${Math.round(evaluation * 100)}%` : "--",
+			label: "Evaluation",
+		},
+	];
 
-		const accuracy: IDatum[] = [
-			{
-				data: training ? `${Math.round(training * 100)}%` : "--",
-				label: "Training",
-			},
-			{
-				data: evaluation ? `${Math.round(evaluation * 100)}%` : "--",
-				label: "Evaluation",
-			},
-		];
-
-		const refreshPredictions = (
-			<button className="btn btn-primary w-100" onClick={this.props.onButtonClick} hidden={predictions.length === 0}>
-				Pick New Images
-			</button>
-		);
-		// console.log(predict);
-		return (
-			<>
-				<div className="row" hidden={predictions.length > 0}>
-					<div className="mb-5 col-md-10 mx-auto">
-						<p>
-							Now that you have trained your model, let’s test it. You can test just one image or several. The software
-							will keep track of the category label you predicted for each image.
-						</p>
-					</div>
+	return (
+		<>
+			<div className="row" hidden={predictions.length > 0}>
+				<div className="mb-5 col-md-10 mx-auto">
+					<p>
+						Now that you have trained your model, let's test it. You can test just one image or several. The software
+						will keep track of the category label you predicted for each image.
+					</p>
 				</div>
+			</div>
 
-				<section className="row justify-content-center">
-					<div className={`col-md-6 ${styles.classifier}`} hidden>
-						<Metrics
-							labels={labels}
-							onDownload={onDownload}
-							downloading={downloading}
-							accuracy={accuracy}
-							logs={logs}
-							errors={errors}
-						/>
-					</div>
-					<div className="col-md-5" hidden={predictions.length > 0}>
-						{/* <DataSelection
-							label="Home Cooked"
-							currentGroup="all"
-							dataset={this.props.appValidationPool}
-							mode="validating"
-						/> */}
+			<section className="row justify-content-center">
+				<div className={`col-md-6 ${styles.classifier}`} hidden>
+					<Metrics
+						labels={labels}
+						onDownload={onDownload}
+						downloading={downloading}
+						accuracy={accuracyData}
+						logs={logs}
+						errors={errors}
+					/>
+				</div>
+				<div className="col-md-5" hidden={predictions.length > 0}>
+					<ImageSelection set={"group_a"} mode="Evaluation" />
+				</div>
+				<div className="col-md-5" hidden={predictions.length > 0}>
+					<ImageSelection set={"group_b"} mode="Evaluation" />
+				</div>
+			</section>
 
-						<ImageSelection
-							label={imageCompareDataSets[dataType].groupALabel}
-							set={imageCompareDataSets[dataType].validationPool}
-							mode="Evaluation"
-							selectCallback={console.log}
-							score={imageCompareDataSets[dataType].corporateScoreB}
-							// mode="training"
-						/>
-					</div>
-					<div className="col-md-5" hidden={predictions.length > 0}>
-						<ImageSelection
-							label={imageCompareDataSets[dataType].groupBLabel}
-							set={imageCompareDataSets[dataType].validationPool}
-							mode="Evaluation"
-							selectCallback={console.log}
-							score={imageCompareDataSets[dataType].corporateScoreB}
-							// mode="training"
-						/>
-						{/* <DataSelection
-							label="Factory Made"
-							currentGroup="all"
-							dataset={this.props.appValidationPool}
-							mode="validating"
-						/> */}
-					</div>
-				</section>
-
-				<section className="row">
-					<div className="col-md-12">
-						{predict && <Evaluator predict={predict} predictions={predictions} button={refreshPredictions} />}
-					</div>
-				</section>
-			</>
-		);
-	}
-}
+			<section className="row">
+				<div className="col-md-12">{predict && <Evaluator predict={predict} />}</div>
+			</section>
+		</>
+	);
+};
 
 export default Model;
-
-export type { ImageError } from "./Metrics";

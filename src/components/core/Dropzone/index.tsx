@@ -1,142 +1,56 @@
-import * as React from "react";
-import classNames from "../../../utils/classNames";
-import transformFiles from "./transformFiles";
+import React, { DragEvent, FC, useEffect, useState } from "react";
 import styles from "./Dropzone.module.scss";
-import "bootstrap/dist/css/bootstrap.min.css";
-interface IProps {
+
+import { classNames, getAllUrls, transformFiles } from "../../../utils";
+
+import { useDataStore } from "../../../store";
+interface DropzoneProps {
 	onDrop?: Function;
 	onParseFiles: Function;
 	onParseObject: Function;
-	style?: any;
 	children?: any;
 	mode?: any;
 	enableDrop?: boolean;
 }
 
-interface IState {
-	over: boolean;
-}
+const Dropzone: FC<DropzoneProps> = (props) => {
+	const [over, setOver] = useState(false);
 
-class Dropzone extends React.Component<IProps, IState> {
-	private timeout: number;
-	constructor(props: IProps) {
-		super(props);
+	let timeout: any;
+	let enableFileDrop = props.enableDrop;
 
-		this.state = {
-			over: false,
-		};
-	}
+	const groupA = useDataStore((state) => state.data.group_a);
+	const groupB = useDataStore((state) => state.data.group_b);
 
-	public handleDrop = async (e: React.DragEvent) => {
-		if (this.props.onDrop) {
-			this.props.onDrop();
+	/**
+	 * Handles the drop event, transforms the dropped files into an array of folders,
+	 * and calls the onParseFiles prop with the resulting array.
+	 *
+	 * @param e The drag event.
+	 */
+	const handleDrop = async (e: DragEvent) => {
+		if (props.onDrop) {
+			props.onDrop();
 		}
 		e.preventDefault();
 		e.persist();
 
-		// console.log('pre transforming files');
 		const folders = await transformFiles(e);
-		// console.log('post transforming files');
 		if (e.dataTransfer.items) {
 			e.dataTransfer.items.clear();
 		} else {
 			e.dataTransfer.clearData();
 		}
-		this.props.onParseFiles(folders);
+		props.onParseFiles(folders);
 	};
 
-	public handleDrag = (over: boolean) => {
-		return (e: React.DragEvent) => {
-			e.preventDefault();
-			this.setState({
-				over,
-			});
-		};
-	};
-
-	public handleOnClick = () => {
-		let train = this.props?.mode !== "Evaluate Images";
-		let groupALabel = document.querySelectorAll(".card .card-title")[train ? 0 : 2];
-		let groupBLabel = document.querySelectorAll(".card .card-title")[train ? 1 : 3];
-		let groupABody = document.querySelectorAll(".card .card-body")[train ? 0 : 2];
-		let groupBBody = document.querySelectorAll(".card .card-body")[train ? 1 : 3];
-
-		let dataURLtoFile = (dataurl: any, filename: any) => {
-			let arr = dataurl.split(","),
-				mime = arr[0].match(/:(.*?);/)[1],
-				bstr = atob(arr[1]),
-				n = bstr.length,
-				u8arr = new Uint8Array(n);
-
-			while (n--) {
-				u8arr[n] = bstr.charCodeAt(n);
-			}
-
-			return new File([u8arr], filename, { type: mime });
-		};
-
-		const getBase64FromUrl = async (url: string) => {
-			const data = await fetch(url);
-			const blob = await data.blob();
-			return new Promise((resolve) => {
-				const reader = new FileReader();
-				reader.readAsDataURL(blob);
-				reader.onloadend = () => {
-					const base64data = reader.result;
-					resolve(base64data);
-				};
-			});
-		};
-
-		const getAllUrls = async () => {
-			let groupA = groupABody.querySelector("textarea") as HTMLTextAreaElement;
-			let groupB = groupBBody.querySelector("textarea") as HTMLTextAreaElement;
-
-			if ((groupA.value === "" || groupB.value === "") && train)
-				throw Error("You must select at least one image for each category");
-
-			if ((groupA.value === "[]" || groupB.value === "[]") && train)
-				throw Error("You must select at least one image for each category");
-
-			if (groupA.value === "" && groupB.value === "" && !train)
-				throw Error("You must select at least one image to validate");
-
-			if (groupA.value === "[]" && groupB.value === "[]" && !train)
-				throw Error("You must select at least one image to validate");
-
-			let groupAValues = JSON.parse(groupA.value || "[]");
-			let groupBValues = JSON.parse(groupB.value || "[]");
-
-			if ((groupAValues.length === 0 || groupBValues.length === 0) && train)
-				throw Error("You must select at least one image for each category");
-
-			let arr = new Array<object>();
-
-			if (groupAValues)
-				for (let img of groupAValues) {
-					await getBase64FromUrl(img.src).then((data) => {
-						arr.push({
-							src: data,
-							file: dataURLtoFile(data, "test.png"),
-							label: groupALabel.textContent,
-						});
-					});
-				}
-			if (groupBValues)
-				for (let img of groupBValues) {
-					await getBase64FromUrl(img.src).then((data) => {
-						arr.push({
-							src: data,
-							file: dataURLtoFile(data, "test.png"),
-							label: groupBLabel.textContent,
-						});
-					});
-				}
-
-			return arr;
-		};
-
-		getAllUrls()
+	/**
+	 * Handles the onClick event for the button, retrieves the base64-encoded image data
+	 * and associated file objects for the selected or validate_selected images, and
+	 * calls the onParseObject prop with the resulting array of objects.
+	 */
+	const handleOnClick = () => {
+		getAllUrls(groupA, groupB, props?.mode)
 			.then((urls) => {
 				let convertedImagesNeh = urls.map((val: any) => {
 					return {
@@ -149,71 +63,74 @@ class Dropzone extends React.Component<IProps, IState> {
 			})
 			.catch((e) => {
 				alert(e);
+				console.error(e);
 			})
 			.then((arr) => {
-				this.props.onParseObject(arr);
+				props.onParseObject(arr);
 			});
 	};
 
-	componentWillUnmount() {
-		if (this.timeout) {
-			clearTimeout(this.timeout);
+	/**
+	 * Handles the onDragOver event for the Dropzone component.
+	 *
+	 * @param e The event object.
+	 */
+	const handleDragOver = (e: any) => {
+		if (timeout) {
+			clearTimeout(timeout);
 		}
-	}
-
-	public stop = (e: any) => {
-		if (this.timeout) {
-			clearTimeout(this.timeout);
+		if (over === false) {
+			setOver(true);
 		}
-		if (this.state.over === false) {
-			this.setState({
-				over: true,
-			});
-		}
-		this.timeout = window.setTimeout(() => {
-			this.setState({
-				over: false,
-			});
+		timeout = window.setTimeout(() => {
+			setOver(false);
 		}, 50);
 		e.preventDefault();
 	};
 
-	public render() {
-		const className = classNames(styles.container, {
-			[styles.over]: this.state.over,
-		});
+	const className = classNames(styles.container, {
+		[styles.over]: over,
+	});
 
-		let enableFileDrop = this.props.enableDrop;
-		return (
-			<>
-				{enableFileDrop && (
-					<div
-						className={className}
-						draggable={true}
-						// onDragStart={this.handleDrag(true)}
-						// onDragEnd={this.handleDrag(false)}
-						onDrop={this.handleDrop}
-						// onClick={this.handleOnClick}
-						onDragOver={this.stop}
-						style={this.props.style}
-						// hidden={isHidden}
-					>
-						{this.props.children || <span>Drop Images To Begin Training</span>}
-						<input
-							className={styles.input}
-							type="file"
-							name="files[]"
-							data-multiple-caption="{count} files selected"
-							multiple={true}
-						/>
-					</div>
-				)}
-				<button onClick={this.handleOnClick} className="btn btn-primary w-100 ">
-					{this.props.mode || "Train Model"}
-				</button>
-			</>
-		);
-	}
-}
+	useEffect(() => {
+		return () => {
+			if (timeout) {
+				clearTimeout(timeout);
+			}
+		};
+	}, [timeout]);
+	return (
+		<>
+			{enableFileDrop && (
+				<div
+					className={`${className} ${props.mode === "Evaluate Images" ? styles.evaluation : ""}`}
+					draggable={true}
+					onDrop={handleDrop}
+					onDragOver={handleDragOver}>
+					{props.children || <span>Drop Images To Begin Training</span>}
+					<input
+						className={styles.input}
+						type="file"
+						name="files[]"
+						data-multiple-caption="{count} files selected"
+						multiple={true}
+						aria-label="..."
+					/>
+				</div>
+			)}
+
+			<button onClick={handleOnClick} className="btn btn-primary w-100 ">
+				{props.mode || "Train Model"}
+			</button>
+		</>
+	);
+};
 
 export default Dropzone;
+
+// const handleDrag = (over: boolean) => {
+// 	return (e: React.DragEvent) => {
+// 		e.preventDefault();
+// 		setOver(over);
+// 	};
+// };
