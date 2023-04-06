@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import ImageSelection from "../../components/core/ImageSelection";
+import ImageSelection from "../../features/ImageSelection";
 
-import { MainNavigation, ModalPrompt, ProgressBar, SideNavigation } from "../../components/ui";
+import { MainNavigation, ModalPrompt, SideNavigation, TrainingStatusBar } from "../../components/ui";
 import { useDataStore } from "../../store";
 
 import { imageCompareDataSets } from "../../data/";
 import { qs, querySearch } from "../../utils/getSearchParams";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import ClassifierCore from "../../components/core/ClassifierCore/ClassifierCore";
+import ClassifierCore from "../../components/core/ClassifierCore";
 
 import styles from "./App.module.scss";
 const SHOW_DOWNLOAD = qs.SHOW_DOWNLOAD !== undefined ? qs.SHOW_DOWNLOAD : true;
@@ -85,7 +85,7 @@ const App: React.FC<IProps> = () => {
 
 							<section className="row">
 								<div className="col-md-12">
-									<ProgressBar current={training === false ? 0 : evaluation === true ? 2 : 1} />
+									<TrainingStatusBar current={training === false ? 0 : evaluation === true ? 2 : 1} />
 
 									{training === false && (
 										<div className={`${styles.info} my-5 col-md-10 mx-auto`}>

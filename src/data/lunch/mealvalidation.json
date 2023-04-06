@@ -62,56 +62,56 @@
 	},
 	{
 		"image": "joeslunch/factorymade/bad-10.png",
-		"dim_lighting": "no",
-		"bright_lighting": "yes",
-		"has_square_surfaces": "yes"
+		"dim_lighting": false,
+		"bright_lighting": true,
+		"has_square_surfaces": true
 	},
 	{
 		"image": "joeslunch/factorymade/bad-1.png",
-		"dim_lighting": "no",
-		"bright_lighting": "yes",
-		"has_square_surfaces": "no"
+		"dim_lighting": false,
+		"bright_lighting": true,
+		"has_square_surfaces": false
 	},
 	{
 		"image": "joeslunch/factorymade/bad-2.png",
-		"dim_lighting": "no",
-		"bright_lighting": "yes",
-		"has_square_surfaces": "yes"
+		"dim_lighting": false,
+		"bright_lighting": true,
+		"has_square_surfaces": true
 	},
 	{
 		"image": "joeslunch/factorymade/bad-3.png",
-		"dim_lighting": "yes",
-		"bright_lighting": "no",
-		"has_square_surfaces": "yes"
+		"dim_lighting": true,
+		"bright_lighting": false,
+		"has_square_surfaces": true
 	},
 	{
 		"image": "joeslunch/factorymade/bad-4.png",
-		"dim_lighting": "yes",
-		"bright_lighting": "no",
-		"has_square_surfaces": "yes"
+		"dim_lighting": true,
+		"bright_lighting": false,
+		"has_square_surfaces": true
 	},
 	{
 		"image": "joeslunch/factorymade/bad-5.png",
-		"dim_lighting": "yes",
-		"bright_lighting": "no",
-		"has_square_surfaces": "yes"
+		"dim_lighting": true,
+		"bright_lighting": false,
+		"has_square_surfaces": true
 	},
 	{
 		"image": "joeslunch/factorymade/bad-6.png",
-		"dim_lighting": "yes",
-		"bright_lighting": "no",
-		"has_square_surfaces": "yes"
+		"dim_lighting": true,
+		"bright_lighting": false,
+		"has_square_surfaces": true
 	},
 	{
 		"image": "joeslunch/factorymade/bad-7.png",
-		"dim_lighting": "no",
-		"bright_lighting": "yes",
-		"has_square_surfaces": "yes"
+		"dim_lighting": false,
+		"bright_lighting": true,
+		"has_square_surfaces": true
 	},
 	{
 		"image": "joeslunch/factorymade/bad-9.png",
-		"dim_lighting": "yes",
-		"bright_lighting": "no",
-		"has_square_surfaces": "yes"
+		"dim_lighting": true,
+		"bright_lighting": false,
+		"has_square_surfaces": true
 	}
 ]

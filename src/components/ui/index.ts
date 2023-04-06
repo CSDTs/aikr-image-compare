@@ -1,7 +1,7 @@
-import Loading from "./Loading";
+import LoadingIcon from "./LoadingIcon";
 import MainNavigation from "./MainNavigation";
 import ModalPrompt from "./ModalPrompt";
-import ProgressBar from "./ProgressBar";
 import SideNavigation from "./SideNavigation";
+import TrainingStatusBar from "./TrainingStatusBar";
 
-export { Loading, MainNavigation, ModalPrompt, ProgressBar, SideNavigation };
+export { LoadingIcon, MainNavigation, ModalPrompt, SideNavigation, TrainingStatusBar };

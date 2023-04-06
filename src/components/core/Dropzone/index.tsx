@@ -99,6 +99,8 @@ const Dropzone: FC<DropzoneProps> = (props) => {
 			}
 		};
 	}, [timeout]);
+
+	const checkIncompleteSelection = props.mode === undefined && !groupA.selected && !groupB.selected;
 	return (
 		<>
 			{enableFileDrop && (
@@ -119,7 +121,10 @@ const Dropzone: FC<DropzoneProps> = (props) => {
 				</div>
 			)}
 
-			<button onClick={handleOnClick} className="btn btn-primary w-100 ">
+			<button
+				onClick={handleOnClick}
+				className={`btn btn-${checkIncompleteSelection ? "secondary" : "primary"} w-100 `}
+				disabled={checkIncompleteSelection}>
 				{props.mode || "Train Model"}
 			</button>
 		</>

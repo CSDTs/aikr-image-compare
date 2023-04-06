@@ -64,3 +64,7 @@ export interface ImageError {
 	file?: any;
 	index: number;
 }
+export interface IImageSearch {
+	src: string;
+	label: string;
+}

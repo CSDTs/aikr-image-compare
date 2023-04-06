@@ -1,5 +1,4 @@
-import { IImage } from "../components/core/Search";
-import { Group } from "../types";
+import { Group, IImageSearch } from "../types";
 /**
  * Converts a data URL to a file object.
  *
@@ -91,7 +90,7 @@ const getAllUrls = async (groupA: Group, groupB: Group, mode: string | undefined
 	return arr;
 };
 
-const splitImagesFromLabels = async (images: IImage[]) => {
+const splitImagesFromLabels = async (images: IImageSearch[]) => {
 	const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/"; // Heroku app to bypass CORS
 
 	const origData: {
@@ -103,7 +102,7 @@ const splitImagesFromLabels = async (images: IImage[]) => {
 	};
 
 	return images.reduce(
-		(data, image: IImage) => ({
+		(data, image: IImageSearch) => ({
 			images: data.images.concat(`${CORS_BYPASS}${image.src}`),
 			labels: data.labels.concat(image.label),
 		}),

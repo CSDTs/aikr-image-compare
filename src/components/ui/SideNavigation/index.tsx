@@ -1,5 +1,5 @@
 import styles from "./SideNavigation.module.scss";
-export default function SideNavigation() {
+const SideNavigation = () => {
 	return (
 		<div className={`col-lg-2 d-none d-lg-flex ${styles.container__sidenav}`}>
 			<div className={styles.navbar__side}>
@@ -27,4 +27,6 @@ export default function SideNavigation() {
 			</div>
 		</div>
 	);
-}
+};
+
+export default SideNavigation;
