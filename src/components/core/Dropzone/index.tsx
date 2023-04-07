@@ -100,7 +100,14 @@ const Dropzone: FC<DropzoneProps> = (props) => {
 		};
 	}, [timeout]);
 
-	const checkIncompleteSelection = props.mode === undefined && !groupA.selected && !groupB.selected;
+	const checkIncompleteSelection = props.mode === undefined && (!groupA.selected || !groupB.selected);
+
+	const checkIncompleteEvaluation =
+		props.mode === "Evaluate Images" &&
+		((!groupA.validate_selected && !groupB.validate_selected) ||
+			(groupA?.validate_selected.length === 0 && groupB?.validate_selected.length === 0));
+
+	const checkDisabled = checkIncompleteSelection || checkIncompleteEvaluation;
 	return (
 		<>
 			{enableFileDrop && (
@@ -123,8 +130,8 @@ const Dropzone: FC<DropzoneProps> = (props) => {
 
 			<button
 				onClick={handleOnClick}
-				className={`btn btn-${checkIncompleteSelection ? "secondary" : "primary"} w-100 `}
-				disabled={checkIncompleteSelection}>
+				className={`btn btn-${checkDisabled ? "secondary" : "primary"} w-100 `}
+				disabled={checkDisabled}>
 				{props.mode || "Train Model"}
 			</button>
 		</>

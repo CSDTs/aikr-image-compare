@@ -1,9 +1,9 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import Ratio from "react-bootstrap/Ratio";
 import { LoadingIcon } from "../../components/ui";
+import { useClassifierStore, useDataStore } from "../../store";
 import classNames from "../../utils/classNames";
 import styles from "./TrainingPreview.module.scss";
-
 interface IProps {
 	images?: string[];
 }
@@ -15,7 +15,10 @@ const LOOP_SPEED = 75;
  */
 const TrainingPreview: FC<IProps> = ({ images }) => {
 	const [imageIdx, setImageIdx] = useState<number>(0);
-
+	const updateClassifierValues = useClassifierStore((state) => state.setValue);
+	const groupA = useDataStore((state) => state.data.group_a);
+	const groupB = useDataStore((state) => state.data.group_b);
+	const updateGroupData = useDataStore((state) => state.updateGroupSelection);
 	const last = useRef<number>(0);
 	const timeout = useRef<NodeJS.Timeout>();
 
@@ -57,8 +60,11 @@ const TrainingPreview: FC<IProps> = ({ images }) => {
 		if (timeout.current) {
 			clearTimeout(timeout.current);
 			timeout.current = undefined;
+			updateClassifierValues("predictions", []);
+			updateGroupData("group_a", { ...groupA, validate_selected: [] });
+			updateGroupData("group_b", { ...groupB, validate_selected: [] });
 		}
-	}, []);
+	}, [updateClassifierValues, groupA, groupB, updateGroupData]);
 
 	useEffect(() => {
 		loopImages();

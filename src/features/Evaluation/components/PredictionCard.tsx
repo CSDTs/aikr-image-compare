@@ -9,7 +9,7 @@ interface IProps {
 const PredictionCard: FC<IProps> = (props) => {
 	const { src, prediction, label } = props.prediction;
 	return (
-		<div className="my-2">
+		<div className={`my-2 ${styles.prediction_card}`}>
 			<img
 				src={src}
 				className="w-100 d-flex justify-content-center mx-auto "

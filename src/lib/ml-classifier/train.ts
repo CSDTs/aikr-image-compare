@@ -1,5 +1,5 @@
 import * as tf from "@tensorflow/tfjs";
-import { IParams, IImageData, IArgs } from "./types";
+import { IArgs, IImageData, IParams } from "./types";
 
 const defaultLayers = ({ classes }: { classes: number }) => {
 	return [
@@ -67,7 +67,6 @@ const train = async (pretrainedModel: tf.Model, data: IImageData, classes: numbe
 	const model = getModel(pretrainedModel, data, classes, params, args);
 
 	const batchSize = getBatchSize(params.batchSize, xs);
-	console.log(params.batchSize);
 
 	const history = await model.fit(xs, ys, {
 		...params,
