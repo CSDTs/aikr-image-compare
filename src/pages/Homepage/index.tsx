@@ -25,11 +25,11 @@ interface IProps {
 }
 const App: React.FC<IProps> = () => {
 	const [training, setTraining] = useState<boolean>(false);
-
+	const epochs = 20;
+	const batchSize = 32;
 	const [evaluation, setEvaluation] = useState<boolean>(false);
 	const [trainingState, setTrainingState] = useState<string>("selection");
-	const [epochs, setEpochs] = useState<number>(20);
-	const [batchSize, setBatchSize] = useState<number>(32);
+
 	const setData = useDataStore((state) => state.setData);
 	const data = useDataStore((state) => state.data);
 
@@ -92,7 +92,7 @@ const App: React.FC<IProps> = () => {
 											<p className="mx-auto">{data["homepage_prompt"]}</p>
 										</div>
 									)}
-									<div className="row mt-4 justify-content-center" hidden={training === true}>
+									<div className="mt-4 row justify-content-center" hidden={training === true}>
 										<div className="col-md-5">
 											<ImageSelection set={"group_a"} mode="Training" />
 										</div>
@@ -103,7 +103,7 @@ const App: React.FC<IProps> = () => {
 									</div>
 								</div>
 
-								<div className="col-md-12 align-self-center mx-auto mt-5">
+								<div className="mx-auto mt-5 col-md-12 align-self-center">
 									<ClassifierCore
 										getMLClassifier={getMLClassifier}
 										onAddDataStart={onBeginTraining}

@@ -243,6 +243,7 @@ const ClassifierCore: FC<IProps> = (propsIn) => {
 		classifier.current = new MLClassifier(classifierOverrides);
 
 		if (getMLClassifier) getMLClassifier(classifier.current);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (

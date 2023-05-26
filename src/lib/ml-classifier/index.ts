@@ -2,20 +2,19 @@
 import * as tf from "@tensorflow/tfjs";
 import cropAndResizeImage from "./cropAndResizeImage";
 import getClasses from "./getClasses";
+import loadPretrainedModel from "./loadPretrainedModel";
 import train from "./train";
 import translateImages, { IImageData } from "./translateImages";
-import loadPretrainedModel from "./loadPretrainedModel";
 // import log, { resetLog } from './log';
-import { addData, addLabels } from "./prepareData";
 import getDefaultDownloadHandler from "./getDefaultDownloadHandler";
+import { addData, addLabels } from "./prepareData";
 
 import {
-	IParams,
+	IArgs,
+	ICollectedData,
 	// IConfigurationParams,
 	IData,
-	ICollectedData,
-	IArgs,
-	// DataType,
+	IParams,
 } from "./types";
 
 // export { DataType } from './types';
@@ -210,7 +209,8 @@ class MLClassifier {
 				const predictions = this.model.predict(img);
 
 				score = predictions.toString();
-				score = score.replace(/[\[\]']+/g, "");
+
+				score = score.replace(/[\\[\]']+/g, "");
 				score = score.replace(/["Tensor"]+/g, "");
 				score = score.trim();
 				score = score.replaceAll(",", "");

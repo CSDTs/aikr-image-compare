@@ -1,26 +1,9 @@
-import React, { FC, useState } from "react";
-import { Button, OverlayTrigger, Popover } from "react-bootstrap";
+import { FC, useState } from "react";
 import Toast from "react-bootstrap/Toast";
 
-import ToastContainer, { ToastPosition } from "react-bootstrap/ToastContainer";
+import ToastContainer from "react-bootstrap/ToastContainer";
 import styles from "../Evaluation.module.scss";
 
-const surePopover = (
-	<Popover id="popover-basic">
-		<Popover.Header as="h3">Sure</Popover.Header>
-		<Popover.Body>
-			This machine learning model learns a boundary that helps separate where home cooked and factory made meals tend to
-			lie. Any given meal might lie more towards the home cooked or the factory made meal side. Where the meal falls is
-			translated into how well it "fits" each side and is given as two "sureness" percentages. A decision rule is needed
-			to interpret the "sureness" and decide which kind of meal your image is. Given these two fits, what boundary would
-			you use to decide what category of meal it is? Some people use 50% as their boundary line.
-		</Popover.Body>
-	</Popover>
-);
-
-const SurePrompt = () => {
-	return <></>;
-};
 interface Prediction {
 	label: string;
 	src: string;
@@ -77,7 +60,7 @@ const PredictionBreakdownCard: FC<IProps> = (props) => {
 						</span>{" "}
 						it is {score[1] === label ? score[3] : score[1]}
 					</p>
-					<img src={src} className="w-75 d-flex justify-content-center mx-auto my-2" alt="" />
+					<img src={src} className="mx-auto my-2 w-75 d-flex justify-content-center" alt="" />
 					<p className="mb-0">Predicted as: {prediction} </p>
 				</article>
 			)}
