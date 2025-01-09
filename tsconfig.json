@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"target": "es5",
+		"target": "es2022",
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"allowJs": true,
 		"skipLibCheck": true,
@@ -21,9 +21,15 @@
 		"noImplicitAny": true,
 		"strictNullChecks": true,
 		"sourceMap": true,
-		"suppressImplicitAnyIndexErrors": true,
+
 		"strictPropertyInitialization": false,
-		"downlevelIteration": true
+		"downlevelIteration": true,
+
+		/* Path Aliases */
+		"baseUrl": ".",
+		"paths": {
+			"~/*": ["./src/*"]
+		}
 	},
 	"include": ["src"],
 	"exclude": ["__tests__", "__mocks__", "**/*.test.ts", "**/*.scss.d.ts", "src/types.ts", "node_modules"]
