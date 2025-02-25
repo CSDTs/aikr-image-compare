@@ -1,0 +1,154 @@
+@charset "UTF-8";
+.previewContainer {
+	display: block;
+	overflow-x: auto;
+	white-space: nowrap;
+}
+
+.previewContainer::-webkit-scrollbar {
+	height: 0.5rem;
+	/* height of horizontal scrollbar ← You're missing this */
+	width: 0.5rem;
+	/* width of vertical scrollbar */
+	border: 1px solid #e9ecef;
+	background-color: #e9ecef;
+	border-radius: 10px;
+}
+
+.previewContainer::-webkit-scrollbar-thumb {
+	background-color: rgba(255, 255, 255, 0.1);
+	border-radius: 3px;
+}
+
+.previewContainer::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.previewContainer::-webkit-scrollbar-thumb:horizontal {
+	background: #aecbfa;
+	border-radius: 10px;
+}
+
+.previewContainer::-webkit-scrollbar-thumb:horizontal:hover {
+	background: #0092ed;
+}
+
+.btnModified {
+	height: -webkit-fit-content;
+	height: -moz-fit-content;
+	height: fit-content;
+	-ms-flex-item-align: center;
+	-ms-grid-row-align: center;
+	align-self: center;
+	display: block;
+	width: 100%;
+}
+
+.inputGroup label {
+	background: #fff;
+	font-weight: 600;
+	color: #3c4043;
+	border: 0px;
+}
+
+.image_picker {
+	width: 100%;
+}
+
+.image_picker .responsive {
+	position: relative;
+	margin: 0 auto;
+	float: left;
+	opacity: 1;
+}
+
+.image_picker .responsive .thumbnail {
+	border: 1px solid #ddd;
+	/* Gray border */
+	border-radius: 4px;
+	/* Rounded border */
+	padding: 5px;
+	/* Some padding */
+	width: 150px;
+	/* Set a small width */
+	opacity: 1;
+	margin: 0;
+}
+
+.image_picker .responsive .thumbnail:hover {
+	-webkit-box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.7);
+	box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.7);
+}
+
+.image_picker .responsive .selected {
+	background-color: #008cba;
+}
+
+.image_picker .responsive:hover {
+	cursor: pointer;
+}
+
+.image_picker .responsive .checked {
+	display: none;
+}
+
+.image_picker .selected {
+	opacity: 0.7;
+}
+
+.image_picker .selected .checked {
+	display: inline-block;
+	-webkit-transition: 0.5s ease;
+	transition: 0.5s ease;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+
+.image_picker .selected .checked .icon {
+	background: url("../assets/images/check.png");
+	background-size: cover;
+	height: 75px;
+	width: 75px;
+}
+
+.image_picker .clear {
+	clear: both;
+}
+
+.fixedHeightModal {
+	max-height: 90vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.fixedHeightModal :global(.modal-content) {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	max-height: 90vh;
+}
+
+.scrollableModalBody {
+	flex: 1;
+	overflow-y: auto;
+	padding: 1rem;
+	max-height: 65vh;
+	height: 100%;
+	scrollbar-gutter: stable;
+}
+
+.scrollableModalBody::-webkit-scrollbar {
+	width: 0.5rem;
+	background-color: #e9ecef;
+	border-radius: 10px;
+}
+
+.scrollableModalBody::-webkit-scrollbar-thumb {
+	background: #aecbfa;
+	border-radius: 10px;
+}
+
+.scrollableModalBody::-webkit-scrollbar-thumb:hover {
+	background: #0092ed;
+}

@@ -1,0 +1,76 @@
+.classifier {
+	max-width: 300px;
+	width: 300px;
+	background: white;
+	height: 300px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.classifier h1,
+.classifier h2,
+.classifier h3,
+.classifier h4,
+.classifier h5,
+.classifier h6 {
+	font-weight: inherit;
+}
+
+.classifier button {
+	cursor: pointer;
+}
+
+.classifier ul,
+.classifier li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.classifier * {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.classifier a,
+.classifier button {
+	cursor: pointer;
+}
+
+.classifierAlt {
+	max-width: 300px;
+	width: 300px;
+	background: white;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.classifierAlt h1,
+.classifierAlt h2,
+.classifierAlt h3,
+.classifierAlt h4,
+.classifierAlt h5,
+.classifierAlt h6 {
+	font-weight: inherit;
+}
+
+.classifierAlt button {
+	cursor: pointer;
+}
+
+.classifierAlt ul,
+.classifierAlt li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.classifierAlt * {
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.classifierAlt a,
+.classifierAlt button {
+	cursor: pointer;
+}
