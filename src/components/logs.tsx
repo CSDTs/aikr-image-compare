@@ -1,4 +1,4 @@
-import { FC, MouseEvent, useState } from "react";
+import { FC, useState } from "react";
 import styles from "../styles/Logs.module.css";
 import classNames from "../utils/classNames";
 
@@ -11,7 +11,7 @@ type Props = {
 const Logs: FC<Props> = ({ logs }) => {
 	const [expanded, setExpanded] = useState(false);
 
-	const handleClick = (e: MouseEvent) => {
+	const handleClick = () => {
 		setExpanded(!expanded);
 	};
 
@@ -26,7 +26,7 @@ const Logs: FC<Props> = ({ logs }) => {
 				</a>
 				<label>Loss</label>
 			</div>
-			<pre>{logs.loss.join("\n")}</pre>
+			<pre>{logs.loss?.join("\n")}</pre>
 		</div>
 	);
 };

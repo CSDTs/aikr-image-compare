@@ -13,8 +13,6 @@ interface Props {
 }
 
 const Evaluator: FC<Props> = ({ predict, predictions, button }) => {
-	const [imagesParsed, setImagesParsed] = useState(0);
-	const [totalFiles, setTotalFiles] = useState(0);
 	const [currentPrediction, setCurrentPrediction] = useState<any>([]);
 
 	const onParseFiles = async (files: FileList) => {
@@ -50,7 +48,7 @@ const Evaluator: FC<Props> = ({ predict, predictions, button }) => {
 			</div>
 
 			<div className="row justify-content-center" hidden={predictions.length === 0}>
-				<div className="col-md-6">
+				<div className="col-md-8">
 					<PredictionList predictions={predictions} onClick={onPredictionClick} />
 				</div>
 				<div className="col-md-4">

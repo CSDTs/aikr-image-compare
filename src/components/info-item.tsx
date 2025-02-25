@@ -1,6 +1,6 @@
 import { FC } from "react";
-import styles from "../styles/Metrics.module.css";
-import { IDatum } from "../types";
+import styles from "~/styles/Metrics.module.css";
+import { IDatum } from "~/types";
 
 interface Props {
 	title: string;

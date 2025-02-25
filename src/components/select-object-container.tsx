@@ -39,7 +39,8 @@ const SelectObjectContainer: FC<Props> = ({ images, multiple, currentSet, onPick
 			pickedImageToArray.push({ src, value });
 		});
 
-		onPick(multiple ? pickedImageToArray : pickedImageToArray[0]);
+		const finalPicked = multiple ? pickedImageToArray : pickedImageToArray[0];
+		onPick(finalPicked!);
 	};
 
 	const renderImage = (image: Image, i: number) => {

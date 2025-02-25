@@ -7,10 +7,11 @@ type Props = {
 	prediction: Prediction;
 };
 
-const PredictionCard: FC<Props> = ({ prediction: { src, prediction, label, score } }) => {
+const PredictionCard: FC<Props> = ({ prediction: { src, prediction, label } }) => {
 	const updatedPrediction =
-		prediction?.split("Select")[1]?.split(" Test Image")[0]?.split(" training image")[0].trim() ?? "";
-	const updatedLabel = label?.split("Select")[1]?.split(" Test Image")[0]?.split(" training image")[0].trim() ?? "";
+		prediction?.split("Select")?.[1]?.split(" Test Image")?.[0]?.split(" training image")?.[0]?.trim() ?? "";
+	const updatedLabel =
+		label?.split("Select")?.[1]?.split(" Test Image")?.[0]?.split(" training image")?.[0]?.trim() ?? "";
 
 	return (
 		<div className="my-2">

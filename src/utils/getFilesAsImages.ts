@@ -22,12 +22,12 @@ export const getFilesAsImageArray = async (files: FileList): Promise<IFileData[]
 	const images = [];
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
-		const label = file.name.split("/").slice(-2)[0]; // Get parent folder name as label
+		const label = file?.name.split("/").slice(-2)[0]; // Get parent folder name as label
 		const reader = new FileReader();
 
 		const src = await new Promise<string>((resolve) => {
 			reader.onload = () => resolve(reader.result as string);
-			reader.readAsDataURL(file);
+			reader.readAsDataURL(file as Blob);
 		});
 
 		images.push({
@@ -36,7 +36,7 @@ export const getFilesAsImageArray = async (files: FileList): Promise<IFileData[]
 			file,
 		});
 	}
-	return images;
+	return images as IFileData[];
 };
 
 export default getFilesAsImageArray;

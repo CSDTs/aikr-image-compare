@@ -1,94 +1,85 @@
-import * as tf from '@tensorflow/tfjs';
-import {
-  IParams,
-  IImageData,
-  IArgs,
-} from './types';
+import * as tf from "@tensorflow/tfjs";
+import { IArgs, IImageData, IParams } from "./types";
 
 const defaultLayers = ({ classes }: { classes: number }) => {
-  return [
-    tf.layers.flatten({inputShape: [7, 7, 256]}),
-    tf.layers.dense({
-      units: 100,
-      activation: 'relu',
-      kernelInitializer: 'varianceScaling',
-      useBias: true
-    }),
-    tf.layers.dense({
-      units: classes,
-      kernelInitializer: 'varianceScaling',
-      useBias: false,
-      activation: 'softmax'
-    })
-  ];
+	return [
+		tf.layers.flatten({ inputShape: [7, 7, 256] }),
+		tf.layers.dense({
+			units: 100,
+			activation: "relu",
+			kernelInitializer: "varianceScaling",
+			useBias: true,
+		}),
+		tf.layers.dense({
+			units: classes,
+			kernelInitializer: "varianceScaling",
+			useBias: false,
+			activation: "softmax",
+		}),
+	];
 };
 
 const getBatchSize = (batchSize?: number, xs?: tf.Tensor) => {
-  if (batchSize) {
-    return batchSize;
-  }
+	if (batchSize) {
+		return batchSize;
+	}
 
-  if (xs !== undefined) {
-    return Math.floor(xs.shape[0] * 0.4) || 1;
-  }
+	if (xs !== undefined) {
+		return Math.floor(xs.shape[0] * 0.4) || 1;
+	}
 
-  return undefined;
+	return undefined;
 };
 
 const getModel = (pretrainedModel: tf.Model, data: IImageData, classes: number, params: IParams, args: IArgs) => {
-  if (args.trainingModel) {
-    if (typeof args.trainingModel === 'function') {
-      return args.trainingModel(data, classes, params);
-    }
+	if (args.trainingModel) {
+		if (typeof args.trainingModel === "function") {
+			return args.trainingModel(data, classes, params);
+		}
 
-    return args.trainingModel;
-  }
+		return args.trainingModel;
+	}
 
-  const model = tf.sequential({
-    layers: defaultLayers({ classes }),
-  });
+	const model = tf.sequential({
+		layers: defaultLayers({ classes }),
+	});
 
-  const optimizer = tf.train.adam(0.0001);
+	const optimizer = tf.train.adam(0.0001);
 
-  model.compile({
-    optimizer,
-    loss: 'categoricalCrossentropy',
-    metrics: ['accuracy'],
-  });
+	model.compile({
+		optimizer,
+		loss: "categoricalCrossentropy",
+		metrics: ["accuracy"],
+	});
 
-  return model;
+	// Yes, I know. I just didn't want to remove the pretrained model param at this current moment...
+	if (pretrainedModel) return model;
+	return model;
 };
 
 const train = async (pretrainedModel: tf.Model, data: IImageData, classes: number, params: IParams, args: IArgs) => {
-  const {
-    xs,
-    ys,
-  } = data;
+	const { xs, ys } = data;
 
-  if (xs === undefined || ys === undefined) {
-    throw new Error('Add some examples before training!');
-  }
+	if (xs === undefined || ys === undefined) {
+		throw new Error("Add some examples before training!");
+	}
 
-  // const batch = data.nextTrainBatch(BATCH_SIZE);
+	// const batch = data.nextTrainBatch(BATCH_SIZE);
 
-  const model = getModel(pretrainedModel, data, classes, params, args);
+	const model = getModel(pretrainedModel, data, classes, params, args);
 
-  const batchSize = getBatchSize(params.batchSize, xs);
+	const batchSize = getBatchSize(params.batchSize, xs);
 
-  const history = await model.fit(
-    xs,
-    ys,
-    {
-      ...params,
-      batchSize,
-      epochs: params.epochs || 20,
-    },
-  );
+	const history = await model.fit(xs, ys, {
+		...params,
+		batchSize,
+		epochs: params.epochs || 20,
+	});
 
-  return {
-    model,
-    history,
-  };
+	return {
+		model,
+		history,
+	};
 };
 
 export default train;

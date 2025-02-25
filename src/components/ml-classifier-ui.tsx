@@ -65,6 +65,7 @@ interface IProps {
 	onSaveStart?: Function;
 	onSaveComplete?: Function;
 	appValidationPool?: string[];
+	onImagesUpdate?: (groupA: any[], groupB: any[]) => void;
 }
 
 class MLClassifierUI extends React.Component<IProps, IState> {
@@ -122,7 +123,7 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 		}
 	};
 
-	private onDrop = (files: FileList) => {
+	private onDrop = () => {
 		this.setState({
 			status: "uploading",
 		});
@@ -157,17 +158,14 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 	};
 
 	private onParseObject = (origFiles: Array<any>) => {
-		// let files = new Array<object>();
+		this.setState({
+			predictions: [],
+			status: "empty",
+		});
+
 		let labels = new Array<string>();
 		let images = new Array<string>();
 
-		// files = origFiles.map((file) => {
-		// 	return {
-		// 		file: file.file,
-		// 		src: file.src,
-		// 		path: file.label,
-		// 	};
-		// });
 		images = origFiles.map((file) => {
 			return file.src;
 		});
@@ -277,7 +275,7 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 
 	public predict = async (imageFiles: IFileData[]) => {
 		for (let i = 0; i < imageFiles.length; i++) {
-			const { src, label } = imageFiles[i];
+			const { src, label } = imageFiles[i]!;
 
 			await this.classifier.predict(src, label);
 		}
@@ -306,9 +304,17 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 	public render() {
 		return (
 			<div className="row align-items-center">
-				{(this.state.status === "empty" || this.props.trainingState === "selection") && (
+				{(this.state.status === "empty" ||
+					// this.props.trainingState === "selection" ||
+					this.props.trainingState === "train") && (
 					<div className={styles.classifierAlt + " col-md-6"}>
-						<Dropzone onDrop={this.onDrop} onParseFiles={this.onParseFiles} onParseObject={this.onParseObject} />
+						<Dropzone
+							onDrop={this.onDrop}
+							onParseFiles={this.onParseFiles}
+							onParseObject={this.onParseObject}
+							onImagesUpdate={this.props.onImagesUpdate}
+							mode={this.props.trainingState}
+						/>
 					</div>
 				)}
 				{["training", "uploading", "parsing"].includes(this.state.status) && (
@@ -330,6 +336,7 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 							errors={this.state.errors}
 							appValidationPool={this.props.appValidationPool}
 							onButtonClick={this.onClearPredictions}
+							onImagesUpdate={this.props.onImagesUpdate}
 						/>
 					</div>
 				)}

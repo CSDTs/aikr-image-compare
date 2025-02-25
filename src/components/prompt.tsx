@@ -1,18 +1,18 @@
-import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { PlusCircleIcon } from "lucide-react";
 import { FC, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 
 import styles from "../styles/DataSelection.module.css";
 
-type Props = {
+interface Props {
 	label?: string;
 	mode?: "training" | "validating";
 	content?: React.ReactNode;
 	disabled?: boolean;
-};
+	onImagesSelected?: (images: any[]) => void;
+}
 
-const Prompt: FC<Props> = ({ label, mode, content, disabled }) => {
+const Prompt: FC<Props> = ({ label, mode, content, disabled, onImagesSelected }) => {
 	const [show, setShow] = useState(false);
 	const [obj, setObj] = useState<any[]>([]);
 	const [preview, setPreview] = useState<JSX.Element[]>([]);
@@ -34,6 +34,11 @@ const Prompt: FC<Props> = ({ label, mode, content, disabled }) => {
 		}
 		setObj(temp);
 		setPreview(previewTemp);
+
+		if (onImagesSelected) {
+			onImagesSelected(temp);
+		}
+
 		setShow(false);
 	};
 
@@ -57,17 +62,17 @@ const Prompt: FC<Props> = ({ label, mode, content, disabled }) => {
 					<div className={`${styles.previewContainer} row`}>{preview}</div>
 				</div>
 				<Button variant="outline-primary" onClick={handleShow} disabled={disabled} className={styles.btnModified}>
-					<FontAwesomeIcon icon={faCirclePlus} className="pe-2 ps-1" />
-					Add
+					<PlusCircleIcon className="pe-2 ps-1" />
+					Click to add images
 				</Button>
 			</div>
 			<textarea value={JSON.stringify(obj)} className="w-100 mt-3" disabled hidden></textarea>
 
-			<Modal show={show} onHide={handleClose} centered size="lg">
+			<Modal show={show} onHide={handleClose} centered size="lg" className={styles.fixedHeightModal}>
 				<Modal.Header closeButton>
 					<Modal.Title>{mode && modalTitle[mode]}</Modal.Title>
 				</Modal.Header>
-				<Modal.Body>{content}</Modal.Body>
+				<Modal.Body className={styles.scrollableModalBody}>{content}</Modal.Body>
 				<Modal.Footer>
 					<Button variant="primary" onClick={handleClose}>
 						OK

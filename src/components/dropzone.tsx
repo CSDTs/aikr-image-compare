@@ -12,9 +12,19 @@ interface Props {
 	children?: any;
 	mode?: any;
 	enableDrop?: boolean;
+	onImagesUpdate?: (groupA: any[], groupB: any[]) => void;
 }
 
-const Dropzone: FC<Props> = ({ onDrop, onParseFiles, onParseObject, style, children, mode, enableDrop }) => {
+const Dropzone: FC<Props> = ({
+	onDrop,
+	onParseFiles,
+	onParseObject,
+	style,
+	children,
+	mode,
+	enableDrop,
+	onImagesUpdate,
+}) => {
 	const [over, setOver] = useState(false);
 	let timeout: number;
 
@@ -78,8 +88,8 @@ const Dropzone: FC<Props> = ({ onDrop, onParseFiles, onParseObject, style, child
 		};
 
 		const getAllUrls = async () => {
-			let groupA = groupABody.querySelector("textarea") as HTMLTextAreaElement;
-			let groupB = groupBBody.querySelector("textarea") as HTMLTextAreaElement;
+			let groupA = groupABody?.querySelector("textarea") as HTMLTextAreaElement;
+			let groupB = groupBBody?.querySelector("textarea") as HTMLTextAreaElement;
 
 			let groupAValues = [];
 			let groupBValues = [];
@@ -109,7 +119,7 @@ const Dropzone: FC<Props> = ({ onDrop, onParseFiles, onParseObject, style, child
 					arr.push({
 						src: data,
 						file: dataURLtoFile(data, "test.png"),
-						label: groupALabel.textContent,
+						label: groupALabel?.textContent,
 					});
 				});
 			}
@@ -119,7 +129,7 @@ const Dropzone: FC<Props> = ({ onDrop, onParseFiles, onParseObject, style, child
 					arr.push({
 						src: data,
 						file: dataURLtoFile(data, "test.png"),
-						label: groupBLabel.textContent,
+						label: groupBLabel?.textContent,
 					});
 				});
 			}
@@ -143,7 +153,14 @@ const Dropzone: FC<Props> = ({ onDrop, onParseFiles, onParseObject, style, child
 				alert(e.message);
 			})
 			.then((arr) => {
-				onParseObject(arr);
+				if (Array.isArray(arr) && arr.length > 0) {
+					onParseObject(arr);
+					if (onImagesUpdate) {
+						const groupAValues = JSON.parse((groupABody?.querySelector("textarea") as HTMLTextAreaElement).value);
+						const groupBValues = JSON.parse((groupBBody?.querySelector("textarea") as HTMLTextAreaElement).value);
+						onImagesUpdate(groupAValues, groupBValues);
+					}
+				}
 			});
 	};
 
@@ -182,9 +199,13 @@ const Dropzone: FC<Props> = ({ onDrop, onParseFiles, onParseObject, style, child
 					/>
 				</div>
 			)}
-			<button onClick={handleOnClick} className="btn btn-primary w-100 ">
-				{mode || "Train Model"}
-			</button>
+
+			{mode !== "selection" && (
+				<button onClick={handleOnClick} className="btn btn-primary w-100 ">
+					{mode === "train" ? "Train Model" : "Evaluate Model"}
+					{/* {mode || "Train Model"} */}
+				</button>
+			)}
 		</>
 	);
 };

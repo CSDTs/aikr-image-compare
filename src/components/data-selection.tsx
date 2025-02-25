@@ -10,9 +10,10 @@ interface Props {
 	currentGroup?: string;
 	label?: string;
 	mode?: string;
+	onImagesSelected?: (images: any[]) => void;
 }
 
-const DataSelection: FC<Props> = ({ dataset, currentGroup, label, mode }) => {
+const DataSelection: FC<Props> = ({ dataset, currentGroup, label, mode, onImagesSelected }) => {
 	const [currentGroupState, setCurrentGroup] = useState<string[]>([]);
 
 	useEffect(() => {
@@ -37,6 +38,7 @@ const DataSelection: FC<Props> = ({ dataset, currentGroup, label, mode }) => {
 						mode={mode as "training" | "validating"}
 						content={content}
 						disabled={currentGroupState.length === 0 && currentGroup === ""}
+						onImagesSelected={onImagesSelected}
 					/>
 				</section>
 			</div>

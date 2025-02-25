@@ -115,3 +115,40 @@
 .image_picker .clear {
 	clear: both;
 }
+
+.fixedHeightModal {
+	max-height: 90vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.fixedHeightModal :global(.modal-content) {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	max-height: 90vh;
+}
+
+.scrollableModalBody {
+	flex: 1;
+	overflow-y: auto;
+	padding: 1rem;
+	max-height: 65vh;
+	height: 100%;
+	scrollbar-gutter: stable;
+}
+
+.scrollableModalBody::-webkit-scrollbar {
+	width: 0.5rem;
+	background-color: #e9ecef;
+	border-radius: 10px;
+}
+
+.scrollableModalBody::-webkit-scrollbar-thumb {
+	background: #aecbfa;
+	border-radius: 10px;
+}
+
+.scrollableModalBody::-webkit-scrollbar-thumb:hover {
+	background: #0092ed;
+}

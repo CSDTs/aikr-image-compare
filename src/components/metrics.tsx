@@ -33,12 +33,10 @@ const getData = (labels: string[] = []) => {
 		{}
 	);
 
-	return Object.keys(numOfLabels).map((label) => {
-		return {
-			label,
-			data: numOfLabels[label],
-		};
-	});
+	return Object.keys(numOfLabels).map((label) => ({
+		label,
+		data: numOfLabels[label] || 0,
+	}));
 };
 
 const getErrors = (errors: ImageError[] = []) =>

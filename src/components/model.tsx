@@ -22,9 +22,13 @@ interface IProps {
 	};
 	appValidationPool?: string[];
 	onButtonClick?: () => void;
+	onImagesUpdate?: (groupA: any[], groupB: any[]) => void;
 }
 
-interface IState {}
+interface IState {
+	groupAImages: any[];
+	groupBImages: any[];
+}
 
 const getEvaluation = (predictions: any[]) => {
 	if (predictions.length > 0) {
@@ -37,6 +41,26 @@ const getEvaluation = (predictions: any[]) => {
 };
 
 class Model extends React.Component<IProps, IState> {
+	state = {
+		groupAImages: [],
+		groupBImages: [],
+	};
+
+	handleImagesSelected = (group: "A" | "B", images: any[]) => {
+		if (group === "A") {
+			this.setState({ groupAImages: images });
+		} else {
+			this.setState({ groupBImages: images });
+		}
+
+		if (this.props.onImagesUpdate) {
+			this.props.onImagesUpdate(
+				group === "A" ? images : this.state.groupAImages,
+				group === "B" ? images : this.state.groupBImages
+			);
+		}
+	};
+
 	render() {
 		const {
 			labels,
@@ -48,6 +72,9 @@ class Model extends React.Component<IProps, IState> {
 			accuracy: { training },
 			errors,
 		} = this.props;
+
+		const { groupAImages, groupBImages } = this.state;
+		const hasSelectedImages = groupAImages.length > 0 || groupBImages.length > 0;
 
 		const evaluation = getEvaluation(predictions);
 
@@ -67,13 +94,13 @@ class Model extends React.Component<IProps, IState> {
 				Pick New Images
 			</button>
 		);
-		// console.log(predict);
+
 		return (
 			<>
 				<div className="row" hidden={predictions.length > 0}>
-					<div className="mb-5 col-md-10 mx-auto">
-						<p>
-							Now that you have trained your model, let’s test it. You can test just one image or several. The software
+					<div className="mb-4 col-md-12  mx-auto">
+						<p className="text-center">
+							Now that you have trained your model, let's test it. You can test just one image or several. The software
 							will keep track of the category label you predicted for each image.
 						</p>
 					</div>
@@ -90,27 +117,31 @@ class Model extends React.Component<IProps, IState> {
 							errors={errors}
 						/>
 					</div>
-					<div className="col-md-5" hidden={predictions.length > 0}>
+					<div className="col-md-6" hidden={predictions.length > 0}>
 						<DataSelection
 							label="Select Home Cooked Test Image"
 							currentGroup="all"
 							dataset={this.props.appValidationPool}
 							mode="validating"
+							onImagesSelected={(images) => this.handleImagesSelected("A", images)}
 						/>
 					</div>
-					<div className="col-md-5" hidden={predictions.length > 0}>
+					<div className="col-md-6" hidden={predictions.length > 0}>
 						<DataSelection
 							label="Select Factory Made Test Image"
 							currentGroup="all"
 							dataset={this.props.appValidationPool}
 							mode="validating"
+							onImagesSelected={(images) => this.handleImagesSelected("B", images)}
 						/>
 					</div>
 				</section>
 
 				<section className="row">
 					<div className="col-md-12">
-						{predict && <Evaluator predict={predict} predictions={predictions} button={refreshPredictions} />}
+						{predict && hasSelectedImages && (
+							<Evaluator predict={predict} predictions={predictions} button={refreshPredictions} />
+						)}
 					</div>
 				</section>
 			</>

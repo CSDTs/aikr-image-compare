@@ -1,19 +1,14 @@
-import * as React from "react";
-
-import MLClassifierUI from "./components/ml-classifier-ui";
-import ProgressBar from "./components/progress-bar";
-import { type Image } from "./types";
-
-import styles from "./styles/App.module.css";
-
+import "bootstrap/dist/css/bootstrap.min.css";
+import { FC, useEffect, useState } from "react";
 import AdvancedAccordion from "./components/advanced-accordion";
 import DataSelection from "./components/data-selection";
-
 import IntroDialog from "./components/intro-dialog";
-
-import "bootstrap/dist/css/bootstrap.min.css";
-
+import MLClassifierUI from "./components/ml-classifier-ui";
+// import ProgressBar from "./components/progress-bar";÷
+import ProgressBarUpdated from "./components/progress-bar-updated";
 import { compareSets } from "./data/datasets";
+import styles from "./styles/App.module.css";
+import { type Image } from "./types";
 
 const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
 
@@ -27,7 +22,7 @@ const qs: {
 	.reduce(
 		(obj, [key, val]) => ({
 			...obj,
-			[key]: val === "1" || val === "true" ? true : false,
+			[key as string]: val === "1" || val === "true" ? true : false,
 		}),
 		{}
 	);
@@ -46,213 +41,262 @@ const splitImagesFromLabels = async (images: Image[]) => {
 	return images.reduce(
 		(data, image: Image) => ({
 			images: data.images.concat(`${CORS_BYPASS}${image.src}`),
-			// images: data.images.concat(`${image.src}`),
 			labels: data.labels.concat(image.label),
 		}),
 		origData
 	);
 };
 
-interface IState {
-	training: boolean;
-	evalImages?: Image[];
-	evaluation: boolean;
-	trainingState: string;
-	epochs: number;
-	batchSize: number;
-}
-
-interface IProps {
+interface Props {
 	dataType?: string;
 }
-class App extends React.Component<IProps> {
-	// constructor(props: IProps) {
-	// 	super(props);
-	// }
-	public state: IState = {
+
+const App: FC<Props> = ({ dataType = "lunch" }) => {
+	const [state, setState] = useState({
 		training: false,
-		evalImages: undefined,
+		evalImages: undefined as Image[] | undefined,
 		evaluation: false,
 		trainingState: "selection",
 		epochs: 20,
 		batchSize: 32,
+		groupAImages: [] as any[],
+		groupBImages: [] as any[],
+	});
+
+	let classifier: any;
+
+	const getMLClassifier = (classifierInstance: any) => {
+		classifier = classifierInstance;
 	};
 
-	private classifier: any;
-
-	public getMLClassifier = (classifier: any) => {
-		this.classifier = classifier;
-	};
-
-	public restartTraining = () => {
-		this.setState({
+	const restartTraining = () => {
+		setState((prev) => ({
+			...prev,
 			training: false,
 			evaluation: false,
-			trainingState: "selection",
-		});
+			trainingState: "train",
+		}));
 	};
 
-	public onBeginTraining = () => {
-		this.setState({
+	const onBeginTraining = () => {
+		setState((prev) => ({
+			...prev,
 			training: true,
 			trainingState: "training",
-		});
+		}));
 	};
 
-	public train = async (trainImages: Image[], evalImages?: Image[]) => {
-		this.onBeginTraining();
-		const { images, labels } = await splitImagesFromLabels(trainImages);
-
-		this.setState({
-			evalImages,
-		});
-
-		await this.classifier.addData(images, labels, "train");
+	const onReadyToTrain = () => {
+		setState((prev) => ({
+			...prev,
+			trainingState: "train",
+		}));
 	};
 
-	public onTrainComplete = async () => {
-		this.setState({
+	const onSelectImages = () => {
+		setState((prev) => ({
+			...prev,
+			trainingState: "selection",
+		}));
+	};
+
+	// const train = async (trainImages: Image[], evalImages?: Image[]) => {
+	// 	onBeginTraining();
+	// 	const { images, labels } = await splitImagesFromLabels(trainImages);
+
+	// 	setState((prev) => ({
+	// 		...prev,
+	// 		evalImages,
+	// 	}));
+
+	// 	await classifier.addData(images, labels, "train");
+	// };
+
+	const onTrainComplete = async () => {
+		setState((prev) => ({
+			...prev,
 			evaluation: true,
 			trainingState: "evaluation",
-		});
-		if (this.state.evalImages && this.state.evalImages.length) {
-			const { images, labels } = await splitImagesFromLabels(this.state.evalImages);
+		}));
+
+		if (state.evalImages && state.evalImages.length) {
+			const { images, labels } = await splitImagesFromLabels(state.evalImages);
 
 			for (let i = 0; i < images.length; i++) {
 				const src = images[i];
 				const label = labels[i];
-
-				this.classifier.predict(src, label);
-
-				// const prediction = await this.predictSingleImage(src, label);
-				// callback({
-				//   src,
-				//   label,
-				//   prediction,
-				// });
+				classifier.predict(src, label);
 			}
-
-			// return await this.classifier.addData(images, labels, 'eval');
 		}
 	};
 
-	// Handles user input for epoch and batch size
-	private handleFieldChange(field: string, value: string) {
-		this.setState({ [field]: Number(value) });
-	}
+	const handleFieldChange = (field: string, value: string) => {
+		setState((prev) => ({
+			...prev,
+			[field]: Number(value),
+		}));
+	};
 
-	public render() {
-		let trainingState = this.state.trainingState;
+	let comparisonData = {
+		title: "Classification with AI",
+		homepagePrompt: "",
+		groupALabel: "A",
+		groupADataset: [],
+		groupBLabel: "B",
+		groupBDataset: [],
+		validationPool: [],
+		promptTitle: "",
+		promptBody: "",
+	};
 
-		const dataTy = this.props?.dataType || "lunch";
+	Object.assign(comparisonData, compareSets[dataType as keyof typeof compareSets]);
 
-		let comparisonData = {
-			title: "Classification with AI",
-			homepagePrompt: "",
-			groupALabel: "A",
-			groupADataset: [],
-			groupBLabel: "B",
-			groupBDataset: [],
-			validationPool: [],
-			promptTitle: "",
-			promptBody: "",
-		};
-		Object.assign(comparisonData, compareSets[dataTy as keyof typeof compareSets]);
+	useEffect(() => {
+		console.log(state);
+		if (state.trainingState === "selection" || state.trainingState === "train") {
+			if (state.groupAImages.length > 0 && state.groupBImages.length > 0) {
+				onReadyToTrain();
+			} else {
+				onSelectImages();
+			}
+		}
+	}, [state.trainingState, state.groupAImages.length, state.groupBImages.length]);
 
-		return (
-			<>
-				{/* <MainNavigation user={localStorage.getItem("currentUser")}></MainNavigation> */}
+	const updateSelectedImages = (groupA: any[], groupB: any[]) => {
+		setState((prev) => ({
+			...prev,
+			groupAImages: groupA,
+			groupBImages: groupB,
+		}));
+	};
 
-				<div className={`${styles.containerBody} container`}>
-					<div className={`${styles.containerRow} row`}>
-						{/* <div className={`col-lg-2 d-none d-lg-flex ${styles.container__sidenav}`}>
-							<SideNavigation />
-						</div> */}
-						<div className={`col-lg-10 mx-auto ${styles.content__container}`}>
-							<div className="row justify-content-between">
-								<div className="col-auto pl-4">
-									<h1 className={`${styles.title}`}>{comparisonData.title} </h1>
-								</div>
-
-								{this.state.trainingState === "evaluation" && (
-									<div className="col-auto align-self-center">
-										<button className="btn btn-secondary" onClick={this.restartTraining}>
-											Retrain Model
-										</button>
-									</div>
-								)}
+	return (
+		<>
+			<div className={`${styles.containerBody} container`}>
+				<div className={`${styles.containerRow} row`}>
+					<div className={`col-lg-10 mx-auto ${styles.content__container}`}>
+						<div className="row justify-content-between">
+							<div className="col-auto pl-4">
+								<h1 className={`${styles.title}`}>
+									{comparisonData.title}{" "}
+									{state.training === false
+										? state.groupAImages.length === 0 || state.groupBImages.length === 0
+											? "1: Select Images"
+											: state.groupAImages.length > 0 && state.groupBImages.length > 0
+											? "2: Train Model"
+											: "1: Select Images"
+										: state.evaluation === true
+										? "3: Evaluate Images"
+										: "2: Train Model"}
+								</h1>
 							</div>
 
-							<section className="row">
-								<div className="col-md-12">
-									<ProgressBar current={this.state.training === false ? 0 : this.state.evaluation === true ? 2 : 1} />
-
-									{this.state.training === false && (
-										<div className={`${styles.info} my-5 col-md-10 mx-auto`}>
-											<p className="mx-auto">{comparisonData.homepagePrompt}</p>
-										</div>
-									)}
-
-									<div className="row mt-4 justify-content-center" hidden={this.state.training === true}>
-										<div className="col-md-5">
-											<DataSelection
-												label={
-													this.state.trainingState === "evaluation"
-														? `Select ${comparisonData.groupALabel} test image`
-														: `Select ${comparisonData.groupALabel} training image`
-												}
-												currentGroup="good"
-												dataset={comparisonData.groupADataset}
-												mode="training"
-											/>
-										</div>
-										<div className="col-md-5">
-											<DataSelection
-												label={
-													this.state.trainingState === "evaluation"
-														? `Select ${comparisonData.groupBLabel} test image`
-														: `Select ${comparisonData.groupBLabel} training image`
-												}
-												currentGroup="bad"
-												dataset={comparisonData.groupBDataset}
-												mode="training"
-											/>
-										</div>
-									</div>
+							{state.trainingState === "evaluation" && (
+								<div className="col-auto align-self-center">
+									<button className="btn btn-secondary" onClick={restartTraining}>
+										Retrain Model
+									</button>
 								</div>
-
-								<div className="col-md-12 align-self-center mx-auto mt-5">
-									<MLClassifierUI
-										getMLClassifier={this.getMLClassifier}
-										onAddDataStart={this.onBeginTraining}
-										onTrainComplete={this.onTrainComplete}
-										showDownload={!SHOW_DOWNLOAD}
-										trainingState={trainingState}
-										params={{
-											train: {
-												epochs: this.state.epochs,
-											},
-											evaluate: {
-												batchSize: this.state.batchSize,
-											},
-											save: {},
-										}}
-										appValidationPool={comparisonData.validationPool}
-										uploadFormat="image/*"
-										imagesFormats={[".jpg", ".jpeg", ".png"]}
-									/>
-
-									{this.state.training === false && <AdvancedAccordion onChange={this.handleFieldChange.bind(this)} />}
-								</div>
-							</section>
+							)}
 						</div>
 
-						<IntroDialog title={comparisonData.promptTitle} prompt={comparisonData.promptBody} />
+						<section className="row">
+							<div className="col-md-12">
+								{/* <ProgressBar current={state.training === false ? 0 : state.evaluation === true ? 2 : 1} /> */}
+								<ProgressBarUpdated
+									current={
+										state.training === false
+											? state.groupAImages.length === 0 || state.groupBImages.length === 0
+												? 0
+												: state.groupAImages.length > 0 && state.groupBImages.length > 0
+												? 1
+												: 0
+											: state.evaluation === true
+											? 2
+											: 1
+									}
+								/>
+
+								{state.training === false && (
+									<div className={`${styles.info} mt-2 mb-4 col-md-12  mx-auto`}>
+										<p className="mx-auto text-center">{comparisonData.homepagePrompt}</p>
+									</div>
+								)}
+
+								<div className="row mt-4 mb-3 justify-content-center" hidden={state.training === true}>
+									<div className="col-md-6">
+										<DataSelection
+											label={
+												state.trainingState === "evaluation"
+													? `Select ${comparisonData.groupALabel} test image`
+													: `Select ${comparisonData.groupALabel} training image`
+											}
+											currentGroup="good"
+											dataset={comparisonData.groupADataset}
+											mode="training"
+											onImagesSelected={(images) => {
+												setState((prev) => ({
+													...prev,
+													groupAImages: images,
+												}));
+											}}
+										/>
+									</div>
+									<div className="col-md-6">
+										<DataSelection
+											label={
+												state.trainingState === "evaluation"
+													? `Select ${comparisonData.groupBLabel} test image`
+													: `Select ${comparisonData.groupBLabel} training image`
+											}
+											currentGroup="bad"
+											dataset={comparisonData.groupBDataset}
+											mode="training"
+											onImagesSelected={(images) => {
+												setState((prev) => ({
+													...prev,
+													groupBImages: images,
+												}));
+											}}
+										/>
+									</div>
+								</div>
+							</div>
+
+							<div className="col-md-12 align-self-center mx-auto mt-2">
+								<MLClassifierUI
+									getMLClassifier={getMLClassifier}
+									onAddDataStart={onBeginTraining}
+									onTrainComplete={onTrainComplete}
+									showDownload={!SHOW_DOWNLOAD}
+									trainingState={state.trainingState}
+									params={{
+										train: {
+											epochs: state.epochs,
+										},
+										evaluate: {
+											batchSize: state.batchSize,
+										},
+										save: {},
+									}}
+									appValidationPool={comparisonData.validationPool}
+									uploadFormat="image/*"
+									imagesFormats={[".jpg", ".jpeg", ".png"]}
+									onImagesUpdate={state.trainingState === "train" ? updateSelectedImages : undefined}
+								/>
+
+								{state.training === false && state.trainingState !== "selection" && (
+									<AdvancedAccordion onChange={handleFieldChange} />
+								)}
+							</div>
+						</section>
 					</div>
+
+					<IntroDialog title={comparisonData.promptTitle} prompt={comparisonData.promptBody} />
 				</div>
-			</>
-		);
-	}
-}
+			</div>
+		</>
+	);
+};
 
 export default App;

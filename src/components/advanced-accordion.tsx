@@ -1,7 +1,6 @@
 import { ChangeEvent, FC } from "react";
 
-import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { HelpCircle } from "lucide-react";
 import { Accordion, Form, OverlayTrigger, Popover } from "react-bootstrap";
 
 type Props = {
@@ -58,7 +57,7 @@ const AdvancedAccordion: FC<Props> = ({ onChange }) => {
 						<Form.Group className="mb-3" controlId="formBasicEmail">
 							<OverlayTrigger trigger="click" rootClose placement="right" overlay={batchPopover}>
 								<span>
-									Batch: <FontAwesomeIcon icon={faCircleQuestion} className="pe-2 ps-1" />
+									Batch: <HelpCircle className="pe-2 ps-1" />
 								</span>
 							</OverlayTrigger>{" "}
 							<Form.Control
@@ -73,7 +72,7 @@ const AdvancedAccordion: FC<Props> = ({ onChange }) => {
 						<Form.Group className="mb-3" controlId="formBasicEmail">
 							<OverlayTrigger trigger="click" rootClose placement="right" overlay={epochPopover}>
 								<span>
-									Epochs: <FontAwesomeIcon icon={faCircleQuestion} className="pe-2 ps-1" />
+									Epochs: <HelpCircle className="pe-2 ps-1" />
 								</span>
 							</OverlayTrigger>{" "}
 							<Form.Control
