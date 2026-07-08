@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as React from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 import Dropzone from "../components/dropzone";
 import { getFilesAsImageArray, IFileData, splitImagesFromLabels } from "../utils/getFilesAsImages";
 import nextFrame from "../utils/nextFrame";
@@ -22,7 +23,6 @@ interface IState {
 	images?: string[];
 	files: any[];
 	labels: string[];
-	downloading: boolean;
 	predictions: {
 		src: string;
 		prediction: string;
@@ -49,7 +49,6 @@ interface IProps {
 	getMLClassifier?: Function;
 	uploadFormat: string;
 	imagesFormats: string[];
-	showDownload?: boolean;
 	onLoadStart?: Function;
 	onLoadComplete?: Function;
 	onAddDataStart?: Function;
@@ -68,100 +67,117 @@ interface IProps {
 	onImagesUpdate?: (groupA: any[], groupB: any[]) => void;
 }
 
-class MLClassifierUI extends React.Component<IProps, IState> {
-	public static defaultProps: Partial<IProps> = {
-		params: {},
-		uploadFormat: "nested",
-		imagesFormats: undefined,
-		showDownload: true,
-	};
+type Action =
+	| { type: "drop" }
+	| { type: "addData-start"; images: string[]; dataType: string }
+	| { type: "parse-object" }
+	| { type: "set-files"; files: any[] }
+	| { type: "addData-complete"; images: string[]; labels: string[]; errors?: ImageError[] }
+	| { type: "train-batch"; loss: any }
+	| { type: "train-complete"; training: number }
+	| { type: "predict-complete"; prediction: IState["predictions"][number] }
+	| { type: "clear-predictions" };
 
-	private classifier: any;
+const initialState: IState = {
+	errors: [],
+	files: [],
+	status: "empty",
+	images: undefined,
+	predictions: [],
+	logs: {},
+	labels: [],
+	accuracy: {
+		training: undefined,
+		evaluation: undefined,
+	},
+};
 
-	constructor(props: IProps) {
-		super(props);
-
-		this.state = {
-			errors: [],
-			files: [],
-			status: "empty",
-			images: undefined,
-			downloading: false,
-			predictions: [],
-			logs: {},
-			labels: [],
-			accuracy: {
-				training: undefined,
-				evaluation: undefined,
-			},
-		};
-
-		// this.handleEpochChange = this.handleEpochChange.bind(this);
-		// this.handleBatchSizeChange = this.handleBatchSizeChange.bind(this);
-	}
-
-	componentDidMount = async () => {
-		this.classifier = new MLClassifier({
-			onLoadStart: this.props.onLoadStart,
-			onLoadComplete: this.props.onLoadComplete,
-			onAddDataStart: this.onAddDataStart,
-			onAddDataComplete: this.onAddDataComplete,
-			onClearDataStart: this.props.onClearDataStart,
-			onClearDataComplete: this.props.onClearDataComplete,
-			onTrainStart: this.props.onTrainStart,
-			onTrainComplete: this.props.onTrainComplete,
-			onPredictStart: this.props.onPredictStart,
-			onPredictComplete: this.onPredictComplete,
-			onEvaluateStart: this.props.onEvaluateStart,
-			onEvaluateComplete: this.props.onEvaluateComplete,
-			onSaveStart: this.props.onSaveStart,
-			onSaveComplete: this.props.onSaveComplete,
-		});
-
-		if (this.props.getMLClassifier) {
-			this.props.getMLClassifier(this.classifier);
-		}
-	};
-
-	private onDrop = () => {
-		this.setState({
-			status: "uploading",
-		});
-	};
-
-	private onAddDataStart = async (imageSrcs: string[], _labels: any, dataType: string) => {
-		this.setState({
-			status: "parsing",
-		});
-
-		if (this.props.onAddDataStart) {
-			this.props.onAddDataStart();
-		}
-
-		if (dataType === "train") {
-			this.setState({
+const reducer = (state: IState, action: Action): IState => {
+	switch (action.type) {
+		case "drop":
+			return { ...state, status: "uploading" };
+		case "addData-start":
+			return action.dataType === "train"
+				? { ...state, status: "training", images: action.images }
+				: { ...state, status: "parsing" };
+		case "parse-object":
+			return { ...state, predictions: [], status: "empty" };
+		case "set-files":
+			return { ...state, files: action.files };
+		case "addData-complete":
+			return {
+				...state,
 				status: "training",
-				images: imageSrcs,
-			});
-		}
-	};
+				images: action.images,
+				labels: action.labels,
+				errors: (action.errors || []).map((error: ImageError) => ({
+					...error,
+					file: state.files[error.index],
+				})),
+			};
+		case "train-batch":
+			return {
+				...state,
+				logs: {
+					...state.logs,
+					loss: (state.logs.loss || []).concat(action.loss),
+				},
+			};
+		case "train-complete":
+			return {
+				...state,
+				status: "trained",
+				accuracy: {
+					...state.accuracy,
+					training: action.training,
+				},
+			};
+		case "predict-complete":
+			return { ...state, predictions: state.predictions.concat(action.prediction) };
+		case "clear-predictions":
+			return { ...state, predictions: [] };
+		default:
+			return state;
+	}
+};
 
-	private onParseFiles = async (origFiles: FileList) => {
+const MLClassifierUI: React.FC<IProps> = (props) => {
+	const { params = {} } = props;
+
+	const [state, dispatch] = useReducer(reducer, initialState);
+
+	const classifierRef = useRef<MLClassifier | null>(null);
+
+	// Keep the latest props/state available to the classifier callbacks, which are
+	// frozen at construction time (the classifier is only built once — see below).
+	const propsRef = useRef<IProps>(props);
+	propsRef.current = { ...props, params };
+	const stateRef = useRef<IState>(state);
+	stateRef.current = state;
+
+	const onDrop = useCallback(() => {
+		dispatch({ type: "drop" });
+	}, []);
+
+	const onAddDataStart = useCallback(async (imageSrcs: string[], _labels: any, dataType: string) => {
+		dispatch({ type: "addData-start", images: imageSrcs, dataType });
+
+		if (propsRef.current.onAddDataStart) {
+			propsRef.current.onAddDataStart();
+		}
+	}, []);
+
+	const onParseFiles = useCallback(async (origFiles: FileList) => {
 		const imageFiles: IFileData[] = await getFilesAsImageArray(origFiles);
 
 		const { images, labels, files } = await splitImagesFromLabels(imageFiles);
 
-		this.setState({
-			files,
-		});
-		return this.classifier.addData(images, labels, "train");
-	};
+		dispatch({ type: "set-files", files });
+		return classifierRef.current!.addData(images, labels, "train");
+	}, []);
 
-	private onParseObject = (origFiles: Array<any>) => {
-		this.setState({
-			predictions: [],
-			status: "empty",
-		});
+	const onParseObject = useCallback((origFiles: Array<any>) => {
+		dispatch({ type: "parse-object" });
 
 		let labels = new Array<string>();
 		let images = new Array<string>();
@@ -173,176 +189,158 @@ class MLClassifierUI extends React.Component<IProps, IState> {
 			return file.label;
 		});
 
-		return this.classifier.addData(images, labels, "train");
-	};
+		return classifierRef.current!.addData(images, labels, "train");
+	}, []);
 
-	private onAddDataComplete = async (
-		imageSrcs: string[],
-		labels: string[],
-		dataType: string,
-		errors?: ImageError[]
-	) => {
-		if (this.props.onAddDataComplete) {
-			this.props.onAddDataComplete(imageSrcs, labels, dataType, errors);
-		}
-		if (dataType === "train") {
-			this.setState({
-				status: "training",
-				images: imageSrcs,
-				labels,
-				errors: (errors || []).map((error: ImageError) => {
-					return {
-						...error,
-						file: this.state.files[error.index],
-					};
-				}),
-			});
+	const onAddDataComplete = useCallback(
+		async (imageSrcs: string[], labels: string[], dataType: string, errors?: ImageError[]) => {
+			if (propsRef.current.onAddDataComplete) {
+				propsRef.current.onAddDataComplete(imageSrcs, labels, dataType, errors);
+			}
+			if (dataType === "train") {
+				dispatch({ type: "addData-complete", images: imageSrcs, labels, errors });
 
-			const train = this.props.params.train || {};
+				const train = propsRef.current.params.train || {};
 
-			const result: ITrainResult = await this.classifier.train({
-				...train,
-				callbacks: {
-					onBatchEnd: async (batch: any, logs: any) => {
-						if (train.callbacks && train.callbacks.onBatchEnd) {
-							train.callbacks.onBatchEnd(batch, logs);
-						}
-						const loss = logs.loss.toFixed(5);
-						// console.log(logs);
-						// log(batch, logs);
-						// log('Loss is: ' + logs.loss.toFixed(5));
-						this.setState({
-							logs: {
-								...this.state.logs,
-								loss: (this.state.logs.loss || []).concat(loss),
-							},
-						});
+				const result: ITrainResult = (await classifierRef.current!.train({
+					...train,
+					callbacks: {
+						onBatchEnd: async (batch: any, logs: any) => {
+							if (train.callbacks && train.callbacks.onBatchEnd) {
+								train.callbacks.onBatchEnd(batch, logs);
+							}
+							const loss = logs.loss.toFixed(5);
+							// console.log(logs);
+							// log(batch, logs);
+							// log('Loss is: ' + logs.loss.toFixed(5));
+							dispatch({ type: "train-batch", loss });
 
-						await nextFrame();
+							await nextFrame();
+						},
 					},
-				},
-			});
+				})) as unknown as ITrainResult;
 
-			const {
-				history: {
-					acc,
-					// loss,
-				},
-			} = result;
+				const {
+					history: {
+						acc,
+						// loss,
+					},
+				} = result;
 
-			const training = acc[acc.length - 1];
-			this.setState({
-				status: "trained",
-				accuracy: {
-					...this.state.accuracy,
-					training,
-				},
-			});
-		}
-	};
+				const training = acc[acc.length - 1]!;
+				dispatch({ type: "train-complete", training });
+			}
+		},
+		[]
+	);
 
-	public onPredictComplete = async (src: string, label: string, pred: string | number, score: any) => {
-		if (this.props.onPredictComplete) {
-			this.props.onPredictComplete(src, label, pred);
-		}
-		const prediction = `${pred}`;
+	const onPredictComplete = useCallback(
+		async (src: string, label: string, pred: string | number, score: any) => {
+			if (propsRef.current.onPredictComplete) {
+				propsRef.current.onPredictComplete(src, label, pred);
+			}
+			const prediction = `${pred}`;
 
-		let currentLabels = [...new Set(this.state.labels)];
+			const currentLabels = [...new Set(stateRef.current.labels)];
 
-		let temp = score;
+			const temp = score;
 
-		let outcome = [
-			Math.max(temp[0], temp[1]),
-			prediction,
-			Math.min(temp[0], temp[1]),
-			currentLabels.indexOf(prediction) === 0 ? currentLabels[1] : currentLabels[0],
-		];
-
-		score = outcome;
-		this.setState({
-			predictions: this.state.predictions.concat({
-				src,
+			const outcome = [
+				Math.max(temp[0], temp[1]),
 				prediction,
-				label,
-				score,
-			}),
-		});
-	};
+				Math.min(temp[0], temp[1]),
+				currentLabels.indexOf(prediction) === 0 ? currentLabels[1] : currentLabels[0],
+			];
 
-	public onClearPredictions = () => {
-		this.setState({ predictions: [] });
-	};
+			score = outcome;
+			dispatch({
+				type: "predict-complete",
+				prediction: {
+					src,
+					prediction,
+					label,
+					score,
+				},
+			});
+		},
+		[]
+	);
 
-	public predict = async (imageFiles: IFileData[]) => {
+	const onClearPredictions = useCallback(() => {
+		dispatch({ type: "clear-predictions" });
+	}, []);
+
+	const predict = useCallback(async (imageFiles: IFileData[]) => {
 		for (let i = 0; i < imageFiles.length; i++) {
 			const { src, label } = imageFiles[i]!;
 
-			await this.classifier.predict(src, label);
+			await classifierRef.current!.predict(src, label);
 		}
-	};
+	}, []);
 
-	handleDownload = async () => {
-		this.setState({
-			downloading: true,
+	useEffect(() => {
+		// React 18 StrictMode double-invokes effects in dev; guard so we only ever
+		// construct a single TF.js classifier instance.
+		if (classifierRef.current) {
+			return;
+		}
+
+		const p = propsRef.current;
+		const classifier = new MLClassifier({
+			onLoadStart: p.onLoadStart,
+			onLoadComplete: p.onLoadComplete,
+			onAddDataStart: onAddDataStart,
+			onAddDataComplete: onAddDataComplete,
+			onClearDataStart: p.onClearDataStart,
+			onClearDataComplete: p.onClearDataComplete,
+			onTrainStart: p.onTrainStart,
+			onTrainComplete: p.onTrainComplete,
+			onPredictStart: p.onPredictStart,
+			onPredictComplete: onPredictComplete,
+			onEvaluateStart: p.onEvaluateStart,
+			onEvaluateComplete: p.onEvaluateComplete,
 		});
-		await this.classifier.save((this.props.params || {}).save);
-		this.setState({
-			downloading: false,
-		});
-	};
+		classifierRef.current = classifier;
 
-	// private handleEpochChange(event: Event | any) {
-	// 	if (this.props.params.train?.epochs) {
-	// 		this.props.params.train.epochs = parseInt(event.target.value);
-	// 	}
-	// }
-	// private handleBatchSizeChange(event: Event | any) {
-	// 	if (this.props.params.evaluate?.batchSize) {
-	// 		this.props.params.evaluate.batchSize = parseInt(event.target.value);
-	// 	}
-	// }
-	public render() {
-		return (
-			<div className="row align-items-center">
-				{(this.state.status === "empty" ||
-					// this.props.trainingState === "selection" ||
-					this.props.trainingState === "train") && (
-					<div className={styles.classifierAlt + " col-md-6"}>
-						<Dropzone
-							onDrop={this.onDrop}
-							onParseFiles={this.onParseFiles}
-							onParseObject={this.onParseObject}
-							onImagesUpdate={this.props.onImagesUpdate}
-							mode={this.props.trainingState}
-						/>
-					</div>
-				)}
-				{["training", "uploading", "parsing"].includes(this.state.status) && (
-					<div className={styles.classifier + " col-md-6"}>
-						<Preview images={this.state.images} />
-					</div>
-				)}
+		if (p.getMLClassifier) {
+			p.getMLClassifier(classifier);
+		}
+	}, [onAddDataStart, onAddDataComplete, onPredictComplete]);
 
-				{this.state.status === "trained" && this.props.trainingState === "evaluation" && this.state.images && (
-					<div className={" col-md-12"}>
-						<Model
-							logs={this.state.logs}
-							labels={this.state.labels}
-							downloading={this.state.downloading}
-							onDownload={this.props.showDownload ? this.handleDownload : undefined}
-							predict={this.predict}
-							predictions={this.state.predictions}
-							accuracy={this.state.accuracy}
-							errors={this.state.errors}
-							appValidationPool={this.props.appValidationPool}
-							onButtonClick={this.onClearPredictions}
-							onImagesUpdate={this.props.onImagesUpdate}
-						/>
-					</div>
-				)}
-			</div>
-		);
-	}
-}
+	return (
+		<div className="row align-items-center">
+			{(state.status === "empty" ||
+				// props.trainingState === "selection" ||
+				props.trainingState === "train") && (
+				<div className={styles.classifierAlt + " col-md-6"}>
+					<Dropzone
+						onDrop={onDrop}
+						onParseFiles={onParseFiles}
+						onParseObject={onParseObject}
+						onImagesUpdate={props.onImagesUpdate}
+						mode={props.trainingState}
+					/>
+				</div>
+			)}
+			{["training", "uploading", "parsing"].includes(state.status) && (
+				<div className={styles.classifier + " col-md-6"}>
+					<Preview images={state.images} />
+				</div>
+			)}
+
+			{state.status === "trained" && props.trainingState === "evaluation" && state.images && (
+				<div className={" col-md-12"}>
+					<Model
+						predict={predict}
+						predictions={state.predictions}
+						appValidationPool={props.appValidationPool}
+						onButtonClick={onClearPredictions}
+						onImagesUpdate={props.onImagesUpdate}
+					/>
+				</div>
+			)}
+		</div>
+	);
+};
 
 export default MLClassifierUI;

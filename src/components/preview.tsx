@@ -56,12 +56,18 @@ const Preview: FC<Props> = ({ images }) => {
 	return (
 		<div className={className}>
 			{src ? (
-				<div
-					className={styles.img}
-					style={{
-						backgroundImage: `url(${src})`,
-					}}
-				/>
+				<>
+					<div
+						className={styles.img}
+						style={{
+							backgroundImage: `url(${src})`,
+						}}
+					/>
+					<div className={styles.trainingBar}>
+						<Loading size={20} />
+						<span>Training model, please wait…</span>
+					</div>
+				</>
 			) : (
 				<div className={styles.loader}>
 					<Loading />

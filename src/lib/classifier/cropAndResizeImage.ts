@@ -1,4 +1,3 @@
-//@ts-nocheck
 import * as tf from "@tensorflow/tfjs";
 
 const crop = (img: tf.Tensor3D) => {
@@ -14,7 +13,9 @@ const crop = (img: tf.Tensor3D) => {
 const cropAndResizeImage = async (img: tf.Tensor3D, dims: [number, number]): Promise<tf.Tensor3D> => {
 	return tf.tidy(() => {
 		const croppedImage = crop(tf.image.resizeBilinear(img, dims));
-		return croppedImage.expandDims(0).toFloat().div(tf.scalar(127)).sub(tf.scalar(1));
+		// TODO(types): expandDims(0) actually produces a rank-4 (batched) tensor, so the declared
+		// Tensor3D return type is inaccurate. Preserving the existing signature/behavior with a cast.
+		return croppedImage.expandDims(0).toFloat().div(tf.scalar(127)).sub(tf.scalar(1)) as tf.Tensor3D;
 	});
 };
 

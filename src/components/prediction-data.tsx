@@ -2,6 +2,7 @@ import { FC } from "react";
 import { OverlayTrigger, Popover } from "react-bootstrap";
 
 import styles from "../styles/PredictionData.module.css";
+import { parseLabel } from "../utils/parseLabel";
 
 type Props = {
 	prediction?: {
@@ -27,13 +28,10 @@ const PredictionData: FC<Props> = ({ prediction }) => {
 	);
 
 	// Select Home Cooked Test Image
-	const label =
-		prediction?.label?.split("Select")?.[1]?.split(" Test Image")?.[0]?.split(" training image")?.[0]?.trim() ?? "";
+	const label = parseLabel(prediction?.label);
 	const src = prediction?.src;
 	const score = prediction?.score;
-	const predictionText =
-		prediction?.prediction?.split("Select")?.[1]?.split(" Test Image")?.[0]?.split(" training image")?.[0]?.trim() ??
-		"";
+	const predictionText = parseLabel(prediction?.prediction);
 
 	if (!score || score.length === 0) {
 		return (
@@ -56,8 +54,7 @@ const PredictionData: FC<Props> = ({ prediction }) => {
 					<span className={styles.sureLink}>sure</span>
 				</OverlayTrigger>{" "}
 				it is{" "}
-				{(score[1] as string)?.split("Select")?.[1]?.split(" Test Image")?.[0]?.split(" training image")?.[0]?.trim() ??
-					""}{" "}
+				{parseLabel(score[1])}{" "}
 				and{" "}
 			</p>
 			<p>
@@ -66,8 +63,7 @@ const PredictionData: FC<Props> = ({ prediction }) => {
 					<span className={styles.sureLink}>sure</span>
 				</OverlayTrigger>{" "}
 				it is{" "}
-				{(score[3] as string)?.split("Select")?.[1]?.split(" Test Image")?.[0]?.split(" training image")?.[0]?.trim() ??
-					""}
+				{parseLabel(score[3])}
 			</p>
 			<img src={src} className="w-75 d-flex justify-content-center mx-auto my-2" alt="" />
 			<p className="mb-0">Predicted as: {predictionText} </p>

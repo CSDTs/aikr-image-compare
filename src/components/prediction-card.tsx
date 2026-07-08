@@ -2,16 +2,15 @@ import { FC } from "react";
 
 import styles from "../styles/Predictions.module.css";
 import { type Prediction } from "../types";
+import { parseLabel } from "../utils/parseLabel";
 
 type Props = {
 	prediction: Prediction;
 };
 
 const PredictionCard: FC<Props> = ({ prediction: { src, prediction, label } }) => {
-	const updatedPrediction =
-		prediction?.split("Select")?.[1]?.split(" Test Image")?.[0]?.split(" training image")?.[0]?.trim() ?? "";
-	const updatedLabel =
-		label?.split("Select")?.[1]?.split(" Test Image")?.[0]?.split(" training image")?.[0]?.trim() ?? "";
+	const updatedPrediction = parseLabel(prediction);
+	const updatedLabel = parseLabel(label);
 
 	return (
 		<div className="my-2">
