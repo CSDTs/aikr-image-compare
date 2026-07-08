@@ -1,46 +1,76 @@
-# Getting Started with Create React App
+# Joe's Lunch — AI Image Compare (`aikr-image-compare`)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Joe's Lunch** is a client-side, in-browser machine-learning teaching tool built by [CSDT](https://csdt.org) (Culturally Situated Design Tools). It walks a student through a three-step wizard — **Select Images** (Group A vs Group B) → **Train Model** → **Evaluate** — that trains an image classifier right in the browser using [TensorFlow.js](https://www.tensorflow.org/js) transfer learning on top of MobileNet.
 
-## Available Scripts
+Everything, including model training, runs on the visitor's own machine. There is **no backend, no authentication, and no database**. The bundled demo dataset is a "homecooked vs. factorymade" food-image set — that's where the "Joe's Lunch" name comes from.
 
-In the project directory, you can run:
+**Stack:** Vite 4 · React 18 · TypeScript 5 · Redux Toolkit · Bootstrap / react-bootstrap · SCSS / CSS Modules · TensorFlow.js
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Quick start
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+**Prerequisites:** [Node.js](https://nodejs.org) 20 LTS recommended (nothing is pinned in-repo), which includes npm, plus [git](https://git-scm.com).
 
-### `npm test`
+```bash
+git clone git@github.com:CSDTs/aikr-image-compare.git
+cd aikr-image-compare
+npm install
+npm run dev
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Then open **http://localhost:3000** — you should see the wizard.
 
-### `npm run build`
+## Scripts
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Command           | What it does                                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`     | Start the Vite dev server on http://localhost:3000 (live-reloads on edit).                                                |
+| `npm run build`   | Type-check then build for production (`tsc && vite build`) → outputs to `dist/`.                                          |
+| `npm run preview` | Serve the built `dist/` locally to preview a production build.                                                            |
+| `npm run lint`    | ⚠️ Currently **broken** — the script and ESLint deps exist, but no ESLint config is committed, so it errors. Known issue. |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+> There is **no test suite**. `package.json` has no `test` script, so `npm test` does not work. (A single orphan test file, `src/utils/__tests__/classNames.test.ts`, exists but no runner is wired up under Vite.)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Configuration
 
-### `npm run eject`
+There are **no environment variables** and no `.env` file to create. Runtime behavior is tweaked via URL query-string parameters, parsed in `src/app.tsx`:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- `?SHOW_HELP` — show/hide the in-wizard help affordance.
+- `?SHOW_DOWNLOAD` — show/hide the download affordance (**defaults to on**).
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+A value of `1` or `true` enables a flag, e.g. `http://localhost:3000/?SHOW_HELP=true`.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Project structure
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```text
+src/
+  index.tsx            App entry point; mounts app.tsx
+  app.tsx              The 3-step wizard; SHOW_HELP/SHOW_DOWNLOAD params + CORS proxy constant
+  components/          21 React components (image selection, classifier UI, evaluator, predictions, …)
+  lib/classifier/      TensorFlow.js training/prediction code (incl. loadPretrainedModel.ts)
+  lib/dropzone/        Drag-and-drop file handling
+  data/                Bundled datasets and training images
+  assets/joeslunch/    The demo "homecooked vs. factorymade" dataset
+  utils/               Shared helpers
+  styles/              One CSS Module per component (*.module.css)
+```
 
-## Learn More
+## External runtime dependencies
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+The app needs network access to actually classify images:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **MobileNet model** is fetched live from `https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json` (`src/lib/classifier/loadPretrainedModel.ts`).
+- A hard-coded **public Heroku CORS proxy**, `https://fast-cove-30289.herokuapp.com/` (`src/app.tsx`), is used to fetch remote images cross-origin. Free Heroku dynos are frequently retired — if image loading fails mysteriously, a dead proxy is the most likely cause.
+
+## Deployment
+
+Deployment is **manual** — there is no CI/CD pipeline:
+
+1. `npm run build` locally to produce `dist/`.
+2. Add the build output into the [`cultural-curriculum-workbooks`](https://github.com/CSDTs) repo.
+3. That is then added onto the CSDT platform manually.
+
+## Contact
+
+For setup, access, or onboarding questions, email the CSDT team at **help@generativejustice.org**.
