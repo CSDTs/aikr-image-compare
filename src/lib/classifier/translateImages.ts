@@ -55,7 +55,7 @@ const getTranslatedImageAsTensor = async (
 	num: number
 ) => {
 	await tf.nextFrame();
-	if (image instanceof tf.tensor3d) {
+	if (image instanceof tf.Tensor) {
 		return image;
 	} else if (typeof image === "string") {
 		const loadedImage = await loadImage(image);

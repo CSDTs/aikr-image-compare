@@ -12,7 +12,7 @@ const LOOP_SPEED = 75;
 
 const Preview: FC<Props> = ({ images }) => {
 	const [imageIdx, setImageIdx] = useState(0);
-	const timeoutRef = useRef<NodeJS.Timeout>();
+	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 	const lastRef = useRef<number>();
 
 	const loopImages = () => {

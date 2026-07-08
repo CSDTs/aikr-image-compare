@@ -23,7 +23,7 @@ import {
 class MLClassifier {
 	// private pretrainedModel: typeof tf.model;
 	// private pretrainedModel: any;
-	private pretrainedModel: tf.Model;
+	private pretrainedModel: tf.LayersModel;
 	// private model: tf.Sequential;
 	private model: any;
 	private callbacks: Function[] = [];

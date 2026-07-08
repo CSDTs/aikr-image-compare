@@ -6,13 +6,13 @@ export const PRETRAINED_MODELS_KEYS = {
 
 export const PRETRAINED_MODELS = {
 	[PRETRAINED_MODELS_KEYS.MOBILENET]: {
-		url: "https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json",
+		url: `${import.meta.env.BASE_URL}models/mobilenet_v1_0.25_224/model.json`,
 		layer: "conv_pw_13_relu",
 	},
 };
 
-const loadPretrainedModel = async (pretrainedModel: string | tf.Model = PRETRAINED_MODELS_KEYS.MOBILENET) => {
-	if (pretrainedModel instanceof tf.Model) {
+const loadPretrainedModel = async (pretrainedModel: string | tf.LayersModel = PRETRAINED_MODELS_KEYS.MOBILENET) => {
+	if (pretrainedModel instanceof tf.LayersModel) {
 		return pretrainedModel;
 	}
 
@@ -21,7 +21,7 @@ const loadPretrainedModel = async (pretrainedModel: string | tf.Model = PRETRAIN
 	}
 
 	const config = PRETRAINED_MODELS[pretrainedModel];
-	const model = await tf.loadModel(config.url);
+	const model = await tf.loadLayersModel(config.url);
 	const layer = model.getLayer(config.layer);
 	return tf.model({
 		inputs: [model.inputs[0]!],

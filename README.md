@@ -4,7 +4,7 @@
 
 Everything, including model training, runs on the visitor's own machine. There is **no backend, no authentication, and no database**. The bundled demo dataset is a "homecooked vs. factorymade" food-image set — that's where the "Joe's Lunch" name comes from.
 
-**Stack:** Vite 4 · React 18 · TypeScript 5 · Redux Toolkit · Bootstrap / react-bootstrap · SCSS / CSS Modules · TensorFlow.js
+**Stack:** Vite 4 · React 18 · TypeScript 5 · Bootstrap / react-bootstrap · CSS Modules · TensorFlow.js
 
 ---
 
@@ -15,22 +15,22 @@ Everything, including model training, runs on the visitor's own machine. There i
 ```bash
 git clone git@github.com:CSDTs/aikr-image-compare.git
 cd aikr-image-compare
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Then open **http://localhost:3000** — you should see the wizard.
 
 ## Scripts
 
-| Command           | What it does                                                                                                              |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`     | Start the Vite dev server on http://localhost:3000 (live-reloads on edit).                                                |
-| `npm run build`   | Type-check then build for production (`tsc && vite build`) → outputs to `dist/`.                                          |
-| `npm run preview` | Serve the built `dist/` locally to preview a production build.                                                            |
-| `npm run lint`    | ⚠️ Currently **broken** — the script and ESLint deps exist, but no ESLint config is committed, so it errors. Known issue. |
+| Command            | What it does                                                                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`         | Start the Vite dev server on http://localhost:3000 (live-reloads on edit).                                                |
+| `pnpm build`       | Type-check then build for production (`tsc && vite build`) → outputs to `dist/`.                                          |
+| `pnpm preview`     | Serve the built `dist/` locally to preview a production build.                                                            |
+| `pnpm lint`        | Runs ESLint (`.eslintrc.cjs`). The codebase has a number of pre-existing style warnings/errors it does not yet pass cleanly, but the config itself resolves and runs. |
 
-> There is **no test suite**. `package.json` has no `test` script, so `npm test` does not work. (A single orphan test file, `src/utils/__tests__/classNames.test.ts`, exists but no runner is wired up under Vite.)
+> There is **no test suite**. `package.json` has no `test` script, so `pnpm test` does not work. (A single orphan test file, `src/utils/__tests__/classNames.test.ts`, exists but no runner is wired up under Vite.)
 
 ## Configuration
 
@@ -46,7 +46,7 @@ A value of `1` or `true` enables a flag, e.g. `http://localhost:3000/?SHOW_HELP=
 ```text
 src/
   index.tsx            App entry point; mounts app.tsx
-  app.tsx              The 3-step wizard; SHOW_HELP/SHOW_DOWNLOAD params + CORS proxy constant
+  app.tsx              The 3-step wizard; SHOW_HELP/SHOW_DOWNLOAD params
   components/          21 React components (image selection, classifier UI, evaluator, predictions, …)
   lib/classifier/      TensorFlow.js training/prediction code (incl. loadPretrainedModel.ts)
   lib/dropzone/        Drag-and-drop file handling
@@ -61,13 +61,12 @@ src/
 The app needs network access to actually classify images:
 
 - **MobileNet model** is fetched live from `https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json` (`src/lib/classifier/loadPretrainedModel.ts`).
-- A hard-coded **public Heroku CORS proxy**, `https://fast-cove-30289.herokuapp.com/` (`src/app.tsx`), is used to fetch remote images cross-origin. Free Heroku dynos are frequently retired — if image loading fails mysteriously, a dead proxy is the most likely cause.
 
 ## Deployment
 
 Deployment is **manual** — there is no CI/CD pipeline:
 
-1. `npm run build` locally to produce `dist/`.
+1. `pnpm build` locally to produce `dist/`.
 2. Add the build output into the [`cultural-curriculum-workbooks`](https://github.com/CSDTs) repo.
 3. That is then added onto the CSDT platform manually.
 

@@ -2,7 +2,7 @@ import { FC, useEffect, useState } from "react";
 import Prompt from "./prompt";
 import PromptBody from "./prompt-body";
 
-import "react-image-picker/dist/index.css";
+import "../styles/image-picker.css";
 import "../styles/DataSelection.module.css";
 
 interface Props {

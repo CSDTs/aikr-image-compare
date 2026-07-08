@@ -10,8 +10,6 @@ import { compareSets } from "./data/datasets";
 import styles from "./styles/App.module.css";
 import { type Image } from "./types";
 
-const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
-
 const qs: {
 	SHOW_HELP?: string;
 	SHOW_DOWNLOAD?: string;
@@ -40,7 +38,7 @@ const splitImagesFromLabels = async (images: Image[]) => {
 
 	return images.reduce(
 		(data, image: Image) => ({
-			images: data.images.concat(`${CORS_BYPASS}${image.src}`),
+			images: data.images.concat(image.src),
 			labels: data.labels.concat(image.label),
 		}),
 		origData

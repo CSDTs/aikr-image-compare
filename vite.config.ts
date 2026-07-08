@@ -9,7 +9,7 @@ export default defineConfig({
 			"~": path.resolve(__dirname, "./src"),
 		},
 	},
-	base: "./",
+	base: process.env.VITE_BASE ?? "./",
 	server: {
 		port: 3000,
 	},
