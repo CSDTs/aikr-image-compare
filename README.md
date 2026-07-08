@@ -10,7 +10,7 @@ Everything, including model training, runs on the visitor's own machine. There i
 
 ## Quick start
 
-**Prerequisites:** [Node.js](https://nodejs.org) 20 LTS recommended (nothing is pinned in-repo), which includes npm, plus [git](https://git-scm.com).
+**Prerequisites:** [Node.js](https://nodejs.org) 20 LTS recommended (nothing is pinned in-repo), [pnpm](https://pnpm.io) (this project's package manager — pinned to `11.6.0` via `package.json`'s `packageManager` field; enable it with `corepack enable`), plus [git](https://git-scm.com).
 
 ```bash
 git clone git@github.com:CSDTs/aikr-image-compare.git
@@ -30,37 +30,34 @@ Then open **http://localhost:3000** — you should see the wizard.
 | `pnpm preview`     | Serve the built `dist/` locally to preview a production build.                                                            |
 | `pnpm lint`        | Runs ESLint (`.eslintrc.cjs`). The codebase has a number of pre-existing style warnings/errors it does not yet pass cleanly, but the config itself resolves and runs. |
 
-> There is **no test suite**. `package.json` has no `test` script, so `pnpm test` does not work. (A single orphan test file, `src/utils/__tests__/classNames.test.ts`, exists but no runner is wired up under Vite.)
+> There is **no test suite**. `package.json` has no `test` script, so `pnpm test` does not work, and there are no test files in the repo.
 
 ## Configuration
 
-There are **no environment variables** and no `.env` file to create. Runtime behavior is tweaked via URL query-string parameters, parsed in `src/app.tsx`:
+There are **no environment variables** and no `.env` file to create — `pnpm install` then `pnpm dev` is all you need, and the app has no runtime configuration knobs. (An earlier version read `?SHOW_HELP` / `?SHOW_DOWNLOAD` URL query-string flags in `src/app.tsx`, but that parsing — and the download feature itself — was removed during modernization; `src/app.tsx` no longer reads the query string.)
 
-- `?SHOW_HELP` — show/hide the in-wizard help affordance.
-- `?SHOW_DOWNLOAD` — show/hide the download affordance (**defaults to on**).
-
-A value of `1` or `true` enables a flag, e.g. `http://localhost:3000/?SHOW_HELP=true`.
+The one build-time exception: `vite.config.ts` reads an optional `VITE_BASE` variable to override the app's base path (defaults to `./`), relevant only when building for a non-root deployment path.
 
 ## Project structure
 
 ```text
 src/
-  index.tsx            App entry point; mounts app.tsx
-  app.tsx              The 3-step wizard; SHOW_HELP/SHOW_DOWNLOAD params
-  components/          21 React components (image selection, classifier UI, evaluator, predictions, …)
+  index.tsx            App entry; wraps app.tsx in SelectionProvider and mounts it
+  app.tsx              The 3-step wizard; reads dataset config from data/datasets.ts
+  components/          17 React components (image selection, classifier UI, evaluator, predictions, …)
+  context/             SelectionContext — image-selection state shared across the wizard
+  hooks/               Custom hooks (e.g. useResetOnChange)
   lib/classifier/      TensorFlow.js training/prediction code (incl. loadPretrainedModel.ts)
   lib/dropzone/        Drag-and-drop file handling
   data/                Bundled datasets and training images
   assets/joeslunch/    The demo "homecooked vs. factorymade" dataset
   utils/               Shared helpers
-  styles/              One CSS Module per component (*.module.css)
+  styles/              CSS Modules (*.module.css)
 ```
 
-## External runtime dependencies
+## Runtime model (bundled)
 
-The app needs network access to actually classify images:
-
-- **MobileNet model** is fetched live from `https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json` (`src/lib/classifier/loadPretrainedModel.ts`).
+The app has **no external runtime dependencies** — it classifies fully offline once installed. The pretrained MobileNet model is bundled in the repo at `public/models/mobilenet_v1_0.25_224/` and loaded from a same-origin path (`src/lib/classifier/loadPretrainedModel.ts`); it is no longer fetched from Google's servers.
 
 ## Deployment
 
