@@ -10,7 +10,7 @@ Everything, including model training, runs on the visitor's own machine. There i
 
 ## Quick start
 
-**Prerequisites:** [Node.js](https://nodejs.org) 20 LTS recommended (nothing is pinned in-repo), [pnpm](https://pnpm.io) (this project's package manager — pinned to `11.6.0` via `package.json`'s `packageManager` field; enable it with `corepack enable`), plus [git](https://git-scm.com).
+**Prerequisites:** [Node.js](https://nodejs.org) 20 (pinned via `.nvmrc` and `package.json`'s `engines` field; run `nvm use`), [pnpm](https://pnpm.io) (this project's package manager — pinned to `11.6.0` via `package.json`'s `packageManager` field; enable it with `corepack enable`), plus [git](https://git-scm.com).
 
 ```bash
 git clone git@github.com:CSDTs/aikr-image-compare.git
