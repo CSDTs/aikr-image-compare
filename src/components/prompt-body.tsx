@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import SelectObjectContainer from "./select-object-container";
 
 interface Image {
@@ -9,20 +9,18 @@ interface Image {
 interface Props {
 	imageList?: string[];
 	label?: string;
+	onPick?: (selected: Image | Image[]) => void;
 }
 
-const PromptBody: FC<Props> = ({ imageList = [], label }) => {
-	const [images, setImages] = useState<Image | Image[]>([]);
-
+const PromptBody: FC<Props> = ({ imageList = [], label, onPick }) => {
+	// SelectObjectContainer resets its picked set whenever the image list changes
+	// (and on mount, which — because the modal unmounts its body on close — happens
+	// each time the modal is opened). Mirror that reset up to the parent so the
+	// live selection starts empty for every fresh open.
 	useEffect(() => {
-		if (imageList) {
-			setImages([]);
-		}
+		onPick?.([]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [imageList]);
-
-	const onPickImages = (selectedImages: Image | Image[]) => {
-		setImages(selectedImages);
-	};
 
 	return (
 		<div>
@@ -32,11 +30,10 @@ const PromptBody: FC<Props> = ({ imageList = [], label }) => {
 					value: i,
 					label,
 				}))}
-				onPick={onPickImages}
+				onPick={(selected) => onPick?.(selected)}
 				currentSet={imageList}
 				multiple
 			/>
-			<textarea rows={4} cols={100} value={images && JSON.stringify(images)} disabled hidden />
 		</div>
 	);
 };

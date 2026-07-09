@@ -2,8 +2,8 @@ import * as tf from "@tensorflow/tfjs";
 
 import { IClasses } from "./types";
 
-const oneHot = (labelIndex: number, classLength: number) =>
-	tf.tidy(() => tf.oneHot(tf.tensor1d([labelIndex]).toInt(), classLength));
+const oneHot = (labelIndex: number, classLength: number): tf.Tensor2D =>
+	tf.tidy(() => tf.oneHot(tf.tensor1d([labelIndex]).toInt(), classLength) as tf.Tensor2D);
 
 // const turnTensorArrayIntoTensor = (tensors: tf.Tensor[]) => tensors.reduce((data?: tf.Tensor, tensor: tf.Tensor) => tf.tidy(() => {
 //   if (data === undefined) {

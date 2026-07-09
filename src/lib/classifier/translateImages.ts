@@ -1,5 +1,5 @@
-//@ts-nocheck
 import * as tf from "@tensorflow/tfjs";
+import type { ImageError } from "../../types";
 // import log from './log';
 
 // import {
@@ -43,19 +43,13 @@ export interface IImageData {
 	height: number;
 }
 
-export interface ImageError {
-	image: any;
-	error: Error;
-	index: number;
-}
-
 const getTranslatedImageAsTensor = async (
 	image: tf.Tensor | IImageData | HTMLImageElement | string,
 	dims: [number, number],
-	num: number
+	_num: number
 ) => {
 	await tf.nextFrame();
-	if (image instanceof tf.tensor3d) {
+	if (image instanceof tf.Tensor) {
 		return image;
 	} else if (typeof image === "string") {
 		const loadedImage = await loadImage(image);
@@ -77,24 +71,24 @@ const translateImages = async (
 	dims: [number, number],
 	origLabels?: string[]
 ) => {
-	const images = [];
+	const images: tf.Tensor[] = [];
 	const errors: ImageError[] = [];
-	const labels = [];
+	const labels: string[] = [];
 
 	for (let i = 0; i < origImages.length; i++) {
-		const origImage = origImages[i];
+		const origImage = origImages[i]!;
 		try {
 			const image = await getTranslatedImageAsTensor(origImage, dims, i);
 			// else, it is already a tensor
 
 			images.push(image);
 			if (origLabels) {
-				labels.push(origLabels[i]);
+				labels.push(origLabels[i]!);
 			}
 		} catch (error) {
 			errors.push({
 				image: origImage,
-				error,
+				error: error as Error,
 				index: i,
 			});
 		}

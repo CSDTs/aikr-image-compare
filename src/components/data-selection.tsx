@@ -1,28 +1,55 @@
 import { FC, useEffect, useState } from "react";
+import { GroupKey, SelectionImage, SelectionMode, useSelection } from "../context/SelectionContext";
+import { useResetOnChange } from "../hooks/useResetOnChange";
 import Prompt from "./prompt";
 import PromptBody from "./prompt-body";
 
-import "react-image-picker/dist/index.css";
+import "../styles/image-picker.css";
 import "../styles/DataSelection.module.css";
+
+interface Image {
+	src: string;
+	value: number;
+	label?: string;
+}
 
 interface Props {
 	dataset?: string[];
 	currentGroup?: string;
 	label?: string;
 	mode?: string;
+	groupKey: GroupKey;
 	onImagesSelected?: (images: any[]) => void;
 }
 
-const DataSelection: FC<Props> = ({ dataset, currentGroup, label, mode, onImagesSelected }) => {
-	const [currentGroupState, setCurrentGroup] = useState<string[]>([]);
+const DataSelection: FC<Props> = ({ dataset, currentGroup, label, mode, groupKey, onImagesSelected }) => {
+	// setCurrentGroup is unused here (this component only ever reads the reset value).
+	const [currentGroupState] = useResetOnChange<string[]>(dataset ?? [], dataset);
+	// Live selection inside the open modal (mirrors SelectObjectContainer's picks).
+	const [liveSelection, setLiveSelection] = useState<SelectionImage[]>([]);
+	// Committed selection (snapshotted when the modal closes).
+	const [committedImages, setCommittedImages] = useState<SelectionImage[]>([]);
 
+	const { setSelection } = useSelection();
+
+	// Keep the context entry in sync with the current label and committed images.
 	useEffect(() => {
-		if (dataset) {
-			setCurrentGroup(dataset);
-		}
-	}, [dataset]);
+		setSelection((mode as SelectionMode) ?? "training", groupKey, label ?? "", committedImages);
+	}, [mode, groupKey, label, committedImages, setSelection]);
 
-	const content = <PromptBody imageList={currentGroupState} label={currentGroup} />;
+	const handlePick = (selected: Image | Image[]) => {
+		const arr = Array.isArray(selected) ? selected : selected ? [selected] : [];
+		setLiveSelection(arr.map((img) => ({ src: img.src })));
+	};
+
+	const handleImagesSelected = (images: SelectionImage[]) => {
+		setCommittedImages(images);
+		if (onImagesSelected) {
+			onImagesSelected(images);
+		}
+	};
+
+	const content = <PromptBody imageList={currentGroupState} label={currentGroup} onPick={handlePick} />;
 
 	return (
 		<div className="card">
@@ -38,7 +65,8 @@ const DataSelection: FC<Props> = ({ dataset, currentGroup, label, mode, onImages
 						mode={mode as "training" | "validating"}
 						content={content}
 						disabled={currentGroupState.length === 0 && currentGroup === ""}
-						onImagesSelected={onImagesSelected}
+						selectedImages={liveSelection}
+						onImagesSelected={handleImagesSelected}
 					/>
 				</section>
 			</div>

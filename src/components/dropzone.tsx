@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
+import { useSelection } from "../context/SelectionContext";
 import transformFiles from "../lib/dropzone/transformFiles";
 import styles from "../styles/Dropzone.module.css";
 import classNames from "../utils/classNames";
@@ -26,12 +26,13 @@ const Dropzone: FC<Props> = ({
 	onImagesUpdate,
 }) => {
 	const [over, setOver] = useState(false);
-	let timeout: number;
+	const { getSelections } = useSelection();
+	const timeoutRef = useRef<number | undefined>(undefined);
 
 	useEffect(() => {
 		return () => {
-			if (timeout) {
-				clearTimeout(timeout);
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
 			}
 		};
 	}, []);
@@ -54,13 +55,12 @@ const Dropzone: FC<Props> = ({
 	};
 
 	const handleOnClick = () => {
-		let train = mode !== "Evaluate Images";
-		let groupALabel = document.querySelectorAll(".card .input-group p")[train ? 0 : 2];
-		let groupBLabel = document.querySelectorAll(".card .input-group p")[train ? 1 : 3];
-		let groupABody = document.querySelectorAll(".card .card-body")[train ? 0 : 2];
-		let groupBBody = document.querySelectorAll(".card .card-body")[train ? 1 : 3];
+		const train = mode !== "Evaluate Images";
+		const [groupA, groupB] = getSelections(train ? "training" : "validating");
+		const groupALabel = groupA.label;
+		const groupBLabel = groupB.label;
 
-		let dataURLtoFile = (dataurl: any, filename: any) => {
+		const dataURLtoFile = (dataurl: any, filename: any) => {
 			let arr = dataurl.split(","),
 				mime = arr[0].match(/:(.*?);/)[1],
 				bstr = atob(arr[1]),
@@ -88,17 +88,8 @@ const Dropzone: FC<Props> = ({
 		};
 
 		const getAllUrls = async () => {
-			let groupA = groupABody?.querySelector("textarea") as HTMLTextAreaElement;
-			let groupB = groupBBody?.querySelector("textarea") as HTMLTextAreaElement;
-
-			let groupAValues = [];
-			let groupBValues = [];
-			try {
-				groupAValues = JSON.parse(groupA.value);
-				groupBValues = JSON.parse(groupB.value);
-			} catch (e) {
-				console.error("Failed to parse group values:", e);
-			}
+			const groupAValues = groupA.images;
+			const groupBValues = groupB.images;
 
 			if (train && (groupAValues.length === 0 || groupBValues.length === 0)) {
 				throw Error("You must select at least one image for home cooked and factory made");
@@ -112,24 +103,24 @@ const Dropzone: FC<Props> = ({
 				throw Error("You must select at least one image from either category");
 			}
 
-			let arr = new Array<object>();
+			const arr = new Array<object>();
 
-			for (let img of groupAValues) {
+			for (const img of groupAValues) {
 				await getBase64FromUrl(img.src).then((data) => {
 					arr.push({
 						src: data,
 						file: dataURLtoFile(data, "test.png"),
-						label: groupALabel?.textContent,
+						label: groupALabel,
 					});
 				});
 			}
 
-			for (let img of groupBValues) {
+			for (const img of groupBValues) {
 				await getBase64FromUrl(img.src).then((data) => {
 					arr.push({
 						src: data,
 						file: dataURLtoFile(data, "test.png"),
-						label: groupBLabel?.textContent,
+						label: groupBLabel,
 					});
 				});
 			}
@@ -139,7 +130,7 @@ const Dropzone: FC<Props> = ({
 
 		getAllUrls()
 			.then((urls) => {
-				let convertedImagesNeh = urls.map((val: any) => {
+				const convertedImagesNeh = urls.map((val: any) => {
 					return {
 						label: val.label,
 						src: val.src,
@@ -156,22 +147,20 @@ const Dropzone: FC<Props> = ({
 				if (Array.isArray(arr) && arr.length > 0) {
 					onParseObject(arr);
 					if (onImagesUpdate) {
-						const groupAValues = JSON.parse((groupABody?.querySelector("textarea") as HTMLTextAreaElement).value);
-						const groupBValues = JSON.parse((groupBBody?.querySelector("textarea") as HTMLTextAreaElement).value);
-						onImagesUpdate(groupAValues, groupBValues);
+						onImagesUpdate(groupA.images, groupB.images);
 					}
 				}
 			});
 	};
 
 	const stop = (e: any) => {
-		if (timeout) {
-			clearTimeout(timeout);
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
 		}
 		if (!over) {
 			setOver(true);
 		}
-		timeout = window.setTimeout(() => {
+		timeoutRef.current = window.setTimeout(() => {
 			setOver(false);
 		}, 50);
 		e.preventDefault();

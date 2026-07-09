@@ -1,6 +1,7 @@
 import { Map } from "immutable";
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 
+import { useResetOnChange } from "../hooks/useResetOnChange";
 import "../styles/DataSelection.module.css";
 import SelectObject from "./select-object";
 
@@ -18,13 +19,7 @@ interface Props {
 }
 
 const SelectObjectContainer: FC<Props> = ({ images, multiple, currentSet, onPick }) => {
-	const [picked, setPicked] = useState<Map<number, string>>(Map());
-
-	useEffect(() => {
-		if (currentSet) {
-			setPicked(Map());
-		}
-	}, [currentSet]);
+	const [picked, setPicked] = useResetOnChange<Map<number, string>>(Map(), currentSet);
 
 	const handleImageClick = (image: Image) => {
 		const pickedImage = multiple ? picked : Map<number, string>();

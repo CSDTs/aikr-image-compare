@@ -3,36 +3,30 @@ import { FC, useState } from "react";
 import { Button, Modal } from "react-bootstrap";
 
 import styles from "../styles/DataSelection.module.css";
+import { parseLabel } from "../utils/parseLabel";
 
 interface Props {
 	label?: string;
 	mode?: "training" | "validating";
 	content?: React.ReactNode;
 	disabled?: boolean;
+	selectedImages?: { src: string }[];
 	onImagesSelected?: (images: any[]) => void;
 }
 
-const Prompt: FC<Props> = ({ label, mode, content, disabled, onImagesSelected }) => {
+const Prompt: FC<Props> = ({ label, mode, content, disabled, selectedImages = [], onImagesSelected }) => {
 	const [show, setShow] = useState(false);
-	const [obj, setObj] = useState<any[]>([]);
 	const [preview, setPreview] = useState<JSX.Element[]>([]);
-	let currentList: NodeListOf<Element>;
 
-	const updatedLabel = label?.split("Select")[1]?.split(" Test Image")[0]?.split(" training image")[0]?.trim();
+	const updatedLabel = parseLabel(label);
 
 	const handleClose = () => {
-		const temp: { src: string }[] = [];
-		const previewTemp: JSX.Element[] = [];
-		currentList = document.querySelectorAll(".modal img.thumbnail.selected");
-
-		for (let i = 0; i < currentList.length; i++) {
-			const imgElement = currentList[i] as HTMLImageElement;
-			temp.push({
-				src: imgElement.src,
-			});
-			previewTemp.push(<img src={imgElement.src} alt="" className="col-3 my-2" key={`img${label}${i}`} />);
-		}
-		setObj(temp);
+		// Commit-on-close: snapshot the live selection (React state, not the DOM) at
+		// the moment the modal closes.
+		const temp: { src: string }[] = selectedImages.map((img) => ({ src: img.src }));
+		const previewTemp: JSX.Element[] = temp.map((img, i) => (
+			<img src={img.src} alt="" className="col-3 my-2" key={`img${label}${i}`} />
+		));
 		setPreview(previewTemp);
 
 		if (onImagesSelected) {
@@ -66,7 +60,6 @@ const Prompt: FC<Props> = ({ label, mode, content, disabled, onImagesSelected })
 					Click to add images
 				</Button>
 			</div>
-			<textarea value={JSON.stringify(obj)} className="w-100 mt-3" disabled hidden></textarea>
 
 			<Modal show={show} onHide={handleClose} centered size="lg" className={styles.fixedHeightModal}>
 				<Modal.Header closeButton>

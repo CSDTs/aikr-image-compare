@@ -1,4 +1,3 @@
-//@ts-nocheck
 import * as tf from "@tensorflow/tfjs";
 import cropAndResizeImage from "./cropAndResizeImage";
 import getClasses from "./getClasses";
@@ -7,7 +6,6 @@ import translateImages, { IImageData } from "./translateImages";
 import loadPretrainedModel from "./loadPretrainedModel";
 // import log, { resetLog } from './log';
 import { addData, addLabels } from "./prepareData";
-import getDefaultDownloadHandler from "./getDefaultDownloadHandler";
 
 import {
 	IParams,
@@ -23,9 +21,9 @@ import {
 class MLClassifier {
 	// private pretrainedModel: typeof tf.model;
 	// private pretrainedModel: any;
-	private pretrainedModel: tf.Model;
+	private pretrainedModel!: tf.LayersModel;
 	// private model: tf.Sequential;
-	private model: any;
+	private model!: tf.LayersModel;
 	private callbacks: Function[] = [];
 	private args: IArgs;
 	private data: IData = {
@@ -39,8 +37,9 @@ class MLClassifier {
 
 	private callbackFn = (fn: string, type: string, ...args: any[]) => {
 		const key = `${fn}${type.substring(0, 1).toUpperCase()}${type.substring(1)}`;
-		if (this.args[key] && typeof this.args[key] === "function") {
-			this.args[key](...args);
+		const callbacks = this.args as Record<string, unknown>;
+		if (callbacks[key] && typeof callbacks[key] === "function") {
+			(callbacks[key] as (...cbArgs: any[]) => void)(...args);
 		}
 	};
 
@@ -60,7 +59,7 @@ class MLClassifier {
 	};
 
 	private loaded = async () =>
-		new Promise((resolve) => {
+		new Promise<void>((resolve) => {
 			if (this.pretrainedModel) {
 				return resolve();
 			}
@@ -92,9 +91,10 @@ class MLClassifier {
 
 		const { inputLayers } = this.pretrainedModel;
 
-		const { batchInputShape } = inputLayers[0];
+		// batchInputShape exists on the input layer at runtime but is absent from tf.layers.Layer's type
+		const { batchInputShape } = inputLayers[0] as unknown as { batchInputShape: number[] };
 
-		return [batchInputShape[1], batchInputShape[2]];
+		return [batchInputShape[1]!, batchInputShape[2]!];
 	};
 
 	private getData = async (dataType: string): Promise<ICollectedData> => {
@@ -103,8 +103,8 @@ class MLClassifier {
 		}
 
 		return {
-			xs: this.data[dataType].xs,
-			ys: this.data[dataType].ys,
+			xs: this.data[dataType]!.xs,
+			ys: this.data[dataType]!.ys,
 			classes: this.data.classes,
 		};
 	};
@@ -114,7 +114,7 @@ class MLClassifier {
 	public addData = async (
 		origImages: Array<tf.Tensor | IImageData | HTMLImageElement | string>,
 		origLabels: string[],
-		dataType: string = "train"
+		dataType = "train"
 	) => {
 		this.callbackFn("onAddData", "start", origImages, origLabels, dataType);
 		if (!origImages) {
@@ -201,7 +201,7 @@ class MLClassifier {
 			const dims = await this.getInputDims();
 			const { images, errors } = await translateImages([origImage], dims);
 			if (errors && errors.length && !images[0]) {
-				throw errors[0].error;
+				throw errors[0]!.error;
 			}
 			const data = images[0];
 			const img = await this.cropAndActivateImage(data);
@@ -210,7 +210,7 @@ class MLClassifier {
 				const predictions = this.model.predict(img);
 
 				score = predictions.toString();
-				score = score.replace(/[\[\]']+/g, "");
+				score = score.replace(/[[\]']+/g, "");
 				score = score.replace(/["Tensor"]+/g, "");
 				score = score.trim();
 				score = score.replaceAll(",", "");
@@ -222,10 +222,10 @@ class MLClassifier {
 				return (predictions as tf.Tensor).as1D().argMax();
 			});
 
-			const classId = (await predictedClass.data())[0];
+			const classId = (await predictedClass.data())[0]!;
 
 			predictedClass.dispose();
-			const prediction = Object.entries(this.data.classes).reduce(
+			const prediction = Object.entries(this.data.classes).reduce<Record<number, string>>(
 				(obj, [key, val]) => ({
 					...obj,
 					[val]: key,
@@ -255,19 +255,6 @@ class MLClassifier {
 		const evaluation = await this.model.evaluate(data.xs, data.ys, params);
 		this.callbackFn("onEvaluate", "complete", params, evaluation);
 		return evaluation;
-	};
-
-	// handlerOrURL?: tf.io.IOHandler | string;
-	public save = async (handlerOrURL?: string, params: IParams = {}) => {
-		this.callbackFn("onSave", "start", handlerOrURL, params);
-		await this.loaded();
-		if (!this.model) {
-			throw new Error("You must call train prior to calling save");
-		}
-
-		const savedModel = await this.model.save(handlerOrURL || getDefaultDownloadHandler(this.data.classes), params);
-		this.callbackFn("onSave", "complete", handlerOrURL, params, savedModel);
-		return savedModel;
 	};
 }
 

@@ -1,4 +1,5 @@
 import { FC } from "react";
+import loadingGif from "~/assets/images/loading.gif";
 
 const SIZE = 32;
 
@@ -9,7 +10,7 @@ interface LoadingProps {
 const Loading: FC<LoadingProps> = ({ size = SIZE }) => {
 	return (
 		<img
-			src={"/loading.gif"}
+			src={loadingGif}
 			alt="Loading..."
 			style={{
 				width: size,

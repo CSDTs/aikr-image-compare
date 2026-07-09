@@ -1,51 +1,16 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import AdvancedAccordion from "./components/advanced-accordion";
 import DataSelection from "./components/data-selection";
 import IntroDialog from "./components/intro-dialog";
 import MLClassifierUI from "./components/ml-classifier-ui";
-// import ProgressBar from "./components/progress-bar";÷
+// import ProgressBar from "./components/progress-bar";
 import ProgressBarUpdated from "./components/progress-bar-updated";
 import { compareSets } from "./data/datasets";
+import type MLClassifier from "./lib/classifier";
 import styles from "./styles/App.module.css";
+import { splitImagesFromLabels } from "./utils/getFilesAsImages";
 import { type Image } from "./types";
-
-const CORS_BYPASS = "https://fast-cove-30289.herokuapp.com/";
-
-const qs: {
-	SHOW_HELP?: string;
-	SHOW_DOWNLOAD?: string;
-} = (window.location.search.split("?").pop() || "")
-	.split("&")
-	.filter((p) => p)
-	.map((p) => p.split("="))
-	.reduce(
-		(obj, [key, val]) => ({
-			...obj,
-			[key as string]: val === "1" || val === "true" ? true : false,
-		}),
-		{}
-	);
-
-const SHOW_DOWNLOAD = qs.SHOW_DOWNLOAD !== undefined ? qs.SHOW_DOWNLOAD : true;
-
-const splitImagesFromLabels = async (images: Image[]) => {
-	const origData: {
-		images: string[];
-		labels: string[];
-	} = {
-		images: [],
-		labels: [],
-	};
-
-	return images.reduce(
-		(data, image: Image) => ({
-			images: data.images.concat(`${CORS_BYPASS}${image.src}`),
-			labels: data.labels.concat(image.label),
-		}),
-		origData
-	);
-};
 
 interface Props {
 	dataType?: string;
@@ -59,14 +24,14 @@ const App: FC<Props> = ({ dataType = "lunch" }) => {
 		trainingState: "selection",
 		epochs: 20,
 		batchSize: 32,
-		groupAImages: [] as any[],
-		groupBImages: [] as any[],
+		groupAImages: [] as { src: string }[],
+		groupBImages: [] as { src: string }[],
 	});
 
-	let classifier: any;
+	const classifierRef = useRef<MLClassifier | null>(null);
 
-	const getMLClassifier = (classifierInstance: any) => {
-		classifier = classifierInstance;
+	const getMLClassifier = (classifierInstance: MLClassifier) => {
+		classifierRef.current = classifierInstance;
 	};
 
 	const restartTraining = () => {
@@ -100,18 +65,6 @@ const App: FC<Props> = ({ dataType = "lunch" }) => {
 		}));
 	};
 
-	// const train = async (trainImages: Image[], evalImages?: Image[]) => {
-	// 	onBeginTraining();
-	// 	const { images, labels } = await splitImagesFromLabels(trainImages);
-
-	// 	setState((prev) => ({
-	// 		...prev,
-	// 		evalImages,
-	// 	}));
-
-	// 	await classifier.addData(images, labels, "train");
-	// };
-
 	const onTrainComplete = async () => {
 		setState((prev) => ({
 			...prev,
@@ -120,12 +73,17 @@ const App: FC<Props> = ({ dataType = "lunch" }) => {
 		}));
 
 		if (state.evalImages && state.evalImages.length) {
-			const { images, labels } = await splitImagesFromLabels(state.evalImages);
+			const { images, labels } = await splitImagesFromLabels(
+				state.evalImages.map((image) => ({ ...image, file: undefined }))
+			);
 
 			for (let i = 0; i < images.length; i++) {
 				const src = images[i];
 				const label = labels[i];
-				classifier.predict(src, label);
+				if (src === undefined || label === undefined) {
+					continue;
+				}
+				classifierRef.current?.predict(src, label);
 			}
 		}
 	};
@@ -137,7 +95,7 @@ const App: FC<Props> = ({ dataType = "lunch" }) => {
 		}));
 	};
 
-	let comparisonData = {
+	const comparisonData = {
 		title: "Classification with AI",
 		homepagePrompt: "",
 		groupALabel: "A",
@@ -162,7 +120,7 @@ const App: FC<Props> = ({ dataType = "lunch" }) => {
 		}
 	}, [state.trainingState, state.groupAImages.length, state.groupBImages.length]);
 
-	const updateSelectedImages = (groupA: any[], groupB: any[]) => {
+	const updateSelectedImages = (groupA: { src: string }[], groupB: { src: string }[]) => {
 		setState((prev) => ({
 			...prev,
 			groupAImages: groupA,
@@ -234,6 +192,7 @@ const App: FC<Props> = ({ dataType = "lunch" }) => {
 											currentGroup="good"
 											dataset={comparisonData.groupADataset}
 											mode="training"
+											groupKey="A"
 											onImagesSelected={(images) => {
 												setState((prev) => ({
 													...prev,
@@ -252,6 +211,7 @@ const App: FC<Props> = ({ dataType = "lunch" }) => {
 											currentGroup="bad"
 											dataset={comparisonData.groupBDataset}
 											mode="training"
+											groupKey="B"
 											onImagesSelected={(images) => {
 												setState((prev) => ({
 													...prev,
@@ -268,7 +228,6 @@ const App: FC<Props> = ({ dataType = "lunch" }) => {
 									getMLClassifier={getMLClassifier}
 									onAddDataStart={onBeginTraining}
 									onTrainComplete={onTrainComplete}
-									showDownload={!SHOW_DOWNLOAD}
 									trainingState={state.trainingState}
 									params={{
 										train: {
@@ -277,7 +236,6 @@ const App: FC<Props> = ({ dataType = "lunch" }) => {
 										evaluate: {
 											batchSize: state.batchSize,
 										},
-										save: {},
 									}}
 									appValidationPool={comparisonData.validationPool}
 									uploadFormat="image/*"
